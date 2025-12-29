@@ -6,13 +6,15 @@ const navItems = [
 	{ label: 'About', href: '/' },
 	{ label: 'Projects', href: '/projects' },
 	{ label: 'Blog', href: '/blog' },
-	{ label: 'Resume', href: '/resume' },
+	{ label: 'Reading', href: '/reading' },
 ];
+
+const currentPath = Astro.url.pathname;
 ---
 
 <header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
 	<div class='flex items-center justify-between'>
-		<Navigation client:load items={navItems} />
+		<Navigation client:load items={navItems} currentPath={currentPath} />
 		<ThemeToggle client:load />
 	</div>
 </header>

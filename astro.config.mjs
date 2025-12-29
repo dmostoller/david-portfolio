@@ -9,7 +9,14 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.davidmostoller.com",
-  integrations: [react(), sitemap()],
+  integrations: [
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler", { target: "19" }]],
+      },
+    }),
+    sitemap(),
+  ],
   output: "server",
   adapter: vercel(),
   vite: {

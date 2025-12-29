@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCard from '../components/sections/BookCard';
+import ArticlesList from '../components/sections/ArticlesList';
+import books from '../content/books.json';
+import type { Book } from '../lib/types/reading';
+
+export const prerender = true;
+
+const typedBooks = books as Book[];
+const currentlyReading = typedBooks.filter((b) => b.status === 'reading');
+const completedBooks = typedBooks.filter((b) => b.status === 'completed');
+const wantToRead = typedBooks.filter((b) => b.status === 'want-to-read');
+---
+
+<BaseLayout title='Reading — David Mostoller' description='Current reads and bookmarked articles.'>
+	<section class='space-y-12'>
+		<header class='space-y-2'>
+			<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>Reading</h1>
+			<p class='text-muted-foreground'>Current reads and bookmarked articles.</p>
+		</header>
+
+		<div class='space-y-4'>
+			<h2 class='text-lg font-medium text-foreground'>Books</h2>
+
+			<div class='grid md:grid-cols-2 gap-8'>
+				{
+					currentlyReading.length > 0 && (
+						<div class='space-y-1'>
+							<h3 class='text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3'>
+								Currently Reading
+							</h3>
+							{currentlyReading.map((book, index) => (
+								<BookCard client:visible {...book} index={index} />
+							))}
+						</div>
+					)
+				}
+
+				<div class='space-y-8'>
+					{
+						completedBooks.length > 0 && (
+							<div class='space-y-1'>
+								<h3 class='text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3'>
+									Recently Finished
+								</h3>
+								{completedBooks.slice(0, 5).map((book, index) => (
+									<BookCard client:visible {...book} index={index} />
+								))}
+							</div>
+						)
+					}
+
+					{
+						wantToRead.length > 0 && (
+							<div class='space-y-1'>
+								<h3 class='text-sm font-medium text-muted-foreground uppercase tracking-wide mb-3'>
+									Want to Read
+								</h3>
+								{wantToRead.slice(0, 3).map((book, index) => (
+									<BookCard client:visible {...book} index={index} />
+								))}
+							</div>
+						)
+					}
+				</div>
+			</div>
+		</div>
+
+		<div class='space-y-4'>
+			<h2 class='text-lg font-medium text-foreground'>Saved Articles</h2>
+
+			<ArticlesList client:load />
+
+			<a
+				href='https://www.inoreader.com'
+				target='_blank'
+				rel='noopener noreferrer'
+				class='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors'
+			>
+				Powered by Inoreader
+				<span>&rarr;</span>
+			</a>
+		</div>
+	</section>
+</BaseLayout>

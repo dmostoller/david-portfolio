@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
 import { motion } from "framer-motion";
-import { Sun, Moon } from "lucide-react";
+import Sun from "lucide-react/dist/esm/icons/sun";
+import Moon from "lucide-react/dist/esm/icons/moon";
 
 function getThemeFromDOM(): "light" | "dark" {
   if (typeof document === "undefined") return "light";
