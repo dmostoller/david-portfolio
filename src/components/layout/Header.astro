@@ -14,7 +14,7 @@ const currentPath = Astro.url.pathname;
 
 <header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
 	<div class='flex items-center justify-between'>
-		<Navigation client:load items={navItems} currentPath={currentPath} />
-		<ThemeToggle client:load />
+		<Navigation client:idle items={navItems} currentPath={currentPath} />
+		<ThemeToggle client:visible />
 	</div>
 </header>

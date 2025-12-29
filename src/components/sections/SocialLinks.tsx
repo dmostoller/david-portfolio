@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Github from "lucide-react/dist/esm/icons/github";
 import Linkedin from "lucide-react/dist/esm/icons/linkedin";
 import BookOpen from "lucide-react/dist/esm/icons/book-open";
@@ -27,24 +27,33 @@ const links = [
 
 const easeOut: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.04 },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, x: -8 },
-  show: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.2, ease: easeOut },
-  },
-};
-
 export default function SocialLinks() {
+  const shouldReduceMotion = useReducedMotion();
+
+  const container = {
+    hidden: { opacity: shouldReduceMotion ? 1 : 0 },
+    show: {
+      opacity: 1,
+      transition: shouldReduceMotion
+        ? { duration: 0 }
+        : { staggerChildren: 0.04 },
+    },
+  };
+
+  const item = {
+    hidden: {
+      opacity: shouldReduceMotion ? 1 : 0,
+      x: shouldReduceMotion ? 0 : -8,
+    },
+    show: {
+      opacity: 1,
+      x: 0,
+      transition: shouldReduceMotion
+        ? { duration: 0 }
+        : { duration: 0.2, ease: easeOut },
+    },
+  };
+
   return (
     <motion.section
       className="pt-8 border-t border-border"

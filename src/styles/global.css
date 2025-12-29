@@ -7,12 +7,14 @@
   --card-foreground: oklch(0.2478 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2478 0 0);
-  --primary: oklch(0.7574 0.1428 173.8122);
+  /* Primary color - darker for AAA contrast on light backgrounds */
+  --primary: oklch(0.58 0.15 173.8122);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.9067 0 0);
   --secondary-foreground: oklch(0.2478 0 0);
   --muted: oklch(0.9551 0 0);
-  --muted-foreground: oklch(0.4926 0 0);
+  /* Darker muted-foreground for 7:1 AAA contrast */
+  --muted-foreground: oklch(0.45 0 0);
   --accent: oklch(0.971 0.0211 204.045);
   --accent-foreground: oklch(0.7574 0.1428 173.8122);
   --destructive: oklch(0.6368 0.2078 25.3313);
@@ -135,7 +137,13 @@
 @layer base {
   html {
     @apply antialiased;
-    scroll-behavior: smooth;
+  }
+
+  /* Only enable smooth scroll if user prefers motion */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   body {
@@ -156,6 +164,47 @@
     --duration-normal: 200ms;
     --duration-slow: 300ms;
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Hide focus outline on main content when focused programmatically */
+  #main-content:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
   }
 }
 

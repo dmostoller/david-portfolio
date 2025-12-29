@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import type { SavedArticle } from "../../lib/types/reading";
 
 interface Props extends SavedArticle {
@@ -13,6 +13,7 @@ export default function ArticlePreview({
   description,
   index,
 }: Props) {
+  const shouldReduceMotion = useReducedMotion();
   const date = new Date(pubDate);
   const formattedDate = isNaN(date.getTime())
     ? pubDate || "Unknown date"
@@ -28,14 +29,20 @@ export default function ArticlePreview({
       target="_blank"
       rel="noopener noreferrer"
       className="group block p-4 -mx-4 rounded-lg hover:bg-muted/50 transition-colors"
-      initial={{ opacity: 0, y: 10 }}
+      initial={
+        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }
+      }
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{
-        delay: index * 0.05,
-        duration: 0.2,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              delay: index * 0.05,
+              duration: 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }
+      }
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
         <div className="space-y-1 flex-1">
@@ -51,7 +58,10 @@ export default function ArticlePreview({
             </p>
           )}
         </div>
-        <time className="text-sm text-muted-foreground whitespace-nowrap" dateTime={pubDate}>
+        <time
+          className="text-sm text-muted-foreground whitespace-nowrap"
+          dateTime={pubDate}
+        >
           {formattedDate}
         </time>
       </div>

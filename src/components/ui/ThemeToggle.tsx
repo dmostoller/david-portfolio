@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Sun from "lucide-react/dist/esm/icons/sun";
 import Moon from "lucide-react/dist/esm/icons/moon";
 
@@ -13,6 +13,7 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     setTheme(getThemeFromDOM());
@@ -41,7 +42,8 @@ export default function ThemeToggle() {
       return;
     }
 
-    const { top, left, width, height } = buttonRef.current.getBoundingClientRect();
+    const { top, left, width, height } =
+      buttonRef.current.getBoundingClientRect();
     const x = left + width / 2;
     const y = top + height / 2;
     const right = window.innerWidth - left;
@@ -72,7 +74,7 @@ export default function ThemeToggle() {
         duration: 500,
         easing: "ease-out",
         pseudoElement: "::view-transition-new(root)",
-      }
+      },
     );
 
     // Clean up after transition completes
@@ -82,7 +84,10 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className="p-2 rounded-md text-muted-foreground" aria-label="Toggle theme">
+      <button
+        className="p-2 rounded-md text-muted-foreground"
+        aria-label="Toggle theme"
+      >
         <Moon size={18} />
       </button>
     );
@@ -93,13 +98,15 @@ export default function ThemeToggle() {
       ref={buttonRef}
       onClick={toggleTheme}
       className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-      whileTap={{ scale: 0.95 }}
+      whileTap={shouldReduceMotion ? {} : { scale: 0.95 }}
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
       <motion.div
         initial={false}
-        animate={{ rotate: theme === "dark" ? 180 : 0 }}
-        transition={{ duration: 0.3 }}
+        animate={
+          shouldReduceMotion ? {} : { rotate: theme === "dark" ? 180 : 0 }
+        }
+        transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.3 }}
       >
         {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
       </motion.div>
