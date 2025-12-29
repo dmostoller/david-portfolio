@@ -47,6 +47,9 @@ export default function ThemeToggle() {
     const bottom = window.innerHeight - top;
     const maxRadius = Math.hypot(Math.max(left, right), Math.max(top, bottom));
 
+    // Mark as theme transition so CSS can scope view-transition-name
+    document.documentElement.dataset.themeTransition = "";
+
     const transition = document.startViewTransition(() => {
       flushSync(() => {
         setTheme(newTheme);
@@ -70,6 +73,10 @@ export default function ThemeToggle() {
         pseudoElement: "::view-transition-new(root)",
       }
     );
+
+    // Clean up after transition completes
+    await transition.finished;
+    delete document.documentElement.dataset.themeTransition;
   };
 
   if (!mounted) {

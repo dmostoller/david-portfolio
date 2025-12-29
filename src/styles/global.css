@@ -185,6 +185,12 @@
   isolation: auto;
 }
 
+/* During theme transitions, disable view-transition-name on all children
+   so only the root circular reveal animates, not Astro's page transitions */
+html[data-theme-transition] * {
+  view-transition-name: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
