@@ -1,0 +1,91 @@
+[
+  {
+    "title": "Tuido",
+    "description": "Terminal-inspired task management for the modern developer.",
+    "tech": ["Python", "Textual", "Redis"],
+    "live": "https://tuido.dev"
+  },
+  {
+    "title": "Neighborhood Pride Landscaping",
+    "description": "A marketing website for a South Jersey based landscaping company.",
+    "tech": ["Next.js", "TailwindCSS", "shadcn/ui"],
+    "live": "https://www.neighborhoodpride-landscaping.com/"
+  },
+  {
+    "title": "WindPalette",
+    "description": "An open-source Tailwind CSS color theme builder with advanced palette generation, real-time previews, and easy export options.",
+    "tech": ["Next.js", "TypeScript", "TailwindCSS", "React", "Redis"],
+    "github": "https://github.com/dmostoller/windpallete",
+    "live": "https://www.windpalette.com/"
+  },
+  {
+    "title": "AI Resume Analyzer",
+    "description": "Transforming the way job seekers optimize their resumes with AI-powered analysis and insights.",
+    "tech": ["Next.js", "TypeScript", "Redis", "AI", "TailwindCSS"],
+    "live": "https://www.airesumeanalyzer.com"
+  },
+  {
+    "title": "Form Accessibility Validator",
+    "description": "A browser extension that helps developers create more accessible web forms through real-time validation and suggestions.",
+    "tech": ["TypeScript", "React", "Chrome Extensions API", "WCAG", "Vitest"],
+    "github": "https://github.com/dmostoller/form-accessibility-validator-extension",
+    "live": "https://fav-website.vercel.app/"
+  },
+  {
+    "title": "PhilaReact",
+    "description": "A community for React, Next.js, and TypeScript enthusiasts in Philadelphia.",
+    "tech": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "TailwindCSS"],
+    "github": "https://github.com/dmostoller/philareact",
+    "live": "https://www.philareact.org/"
+  },
+  {
+    "title": "South River Studios",
+    "description": "Marketing, Blog and SEO Website for a Creative Agency.",
+    "tech": ["Jekyll", "Bulma"],
+    "live": "https://southriverstudios.com"
+  },
+  {
+    "title": "Musician's Base",
+    "description": "Marketing & Content Platform for Musicians with audio player integration.",
+    "tech": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Cloudinary", "WaveSurfer"],
+    "github": "https://github.com/dmostoller/superluminal-next",
+    "live": "https://www.superluminalpsy.com"
+  },
+  {
+    "title": "Band Website & Music Player",
+    "description": "An immersive online music experience with custom audio player.",
+    "tech": ["React", "JavaScript", "TailwindCSS", "Amazon S3", "WaveSurfer"],
+    "live": "https://www.spacejesus.com"
+  },
+  {
+    "title": "Social Artist Portfolio",
+    "description": "Interactive Artist Showcase & Engagement Platform.",
+    "tech": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Cloudinary"],
+    "github": "https://github.com/dmostoller/yasminmostoller",
+    "live": "https://www.yasminmostoller.com"
+  },
+  {
+    "title": "TutorBot",
+    "description": "Contextual Video Chatbot Assistant powered by AI.",
+    "tech": ["React", "Python", "Flask", "ChatGPT", "Llama-Index"],
+    "github": "https://github.com/dmostoller/tutorbot"
+  },
+  {
+    "title": "Invoice Creator",
+    "description": "A user-friendly tool for creating professional invoices.",
+    "tech": ["React", "JavaScript", "Tailwind"],
+    "live": "https://invoice-creator-cmsb.onrender.com/"
+  },
+  {
+    "title": "Mars Game",
+    "description": "Oregon Trail: In Space - A Python CLI adventure game.",
+    "tech": ["Python", "SQLAlchemy", "Rich", "Playsound"],
+    "github": "https://github.com/dmostoller/mars-base"
+  },
+  {
+    "title": "TaskMaster",
+    "description": "A sleek and functional task manager app.",
+    "tech": ["React", "Tailwind", "Django"],
+    "github": "https://github.com/dmostoller/taskmaster"
+  }
+]

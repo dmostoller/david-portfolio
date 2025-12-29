@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/sections/ProjectCard';
+import projects from '../content/projects.json';
+
+export const prerender = true;
+---
+
+<BaseLayout title='Projects — David Mostoller' description="Things I've built.">
+	<section class='space-y-8'>
+		<header class='space-y-2'>
+			<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>Projects</h1>
+			<p class='text-muted-foreground'>A selection of things I've built.</p>
+		</header>
+
+		<div class='space-y-2'>
+			{projects.map((project, index) => <ProjectCard client:visible {...project} index={index} />)}
+		</div>
+	</section>
+</BaseLayout>

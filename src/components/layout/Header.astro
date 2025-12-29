@@ -1,0 +1,18 @@
+---
+import Navigation from './Navigation';
+import ThemeToggle from '../ui/ThemeToggle';
+
+const navItems = [
+	{ label: 'About', href: '/' },
+	{ label: 'Projects', href: '/projects' },
+	{ label: 'Blog', href: '/blog' },
+	{ label: 'Resume', href: '/resume' },
+];
+---
+
+<header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
+	<div class='flex items-center justify-between'>
+		<Navigation client:load items={navItems} />
+		<ThemeToggle client:load />
+	</div>
+</header>

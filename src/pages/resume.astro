@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+export const prerender = true;
+---
+
+<BaseLayout title='Resume — David Mostoller' description='My professional background and experience.'>
+	<section class='space-y-8'>
+		<header class='space-y-2'>
+			<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>Resume</h1>
+			<p class='text-muted-foreground'>My professional background and experience.</p>
+		</header>
+
+		<a
+			href='/resume.pdf'
+			download
+			class='inline-flex items-center gap-3 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium text-sm'
+		>
+			<svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+				<path
+					stroke-linecap='round'
+					stroke-linejoin='round'
+					stroke-width='2'
+					d='M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4'></path>
+			</svg>
+			Download Resume (PDF)
+		</a>
+
+		<!-- Current Role -->
+		<div class='mt-12 space-y-8'>
+			<section>
+				<h2 class='text-lg font-semibold text-foreground mb-4'>Current Role</h2>
+				<div class='border-l-2 border-primary pl-4'>
+					<h3 class='font-medium text-foreground'>Software Engineer</h3>
+					<p class='text-sm text-muted-foreground'>Comcast · 2025 - Present</p>
+					<p class='text-sm text-muted-foreground mt-2'>
+						Developing full-stack cybersecurity applications that support enterprise-scale network protection.
+					</p>
+				</div>
+			</section>
+
+			<p class='text-sm text-muted-foreground'>
+				For my full work history, download my resume or visit my
+				<a
+					href='https://www.linkedin.com/in/dmostoller'
+					target='_blank'
+					rel='noopener noreferrer'
+					class='text-primary hover:underline'
+				>
+					LinkedIn
+				</a>.
+			</p>
+		</div>
+	</section>
+</BaseLayout>

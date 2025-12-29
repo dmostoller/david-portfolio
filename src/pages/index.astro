@@ -1,16 +1,96 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SocialLinks from '../components/sections/SocialLinks';
 
+export const prerender = true;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title='David Mostoller — Software Engineer'>
+	<article class='space-y-12'>
+		<!-- Hero Section -->
+		<header class='flex flex-col sm:flex-row sm:items-center gap-6' transition:animate='slide'>
+			<img
+				src='/headshot-optimized.jpg'
+				alt='David Mostoller'
+				class='w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-2 ring-border shadow-lg'
+			/>
+			<div class='space-y-2'>
+				<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>David Mostoller</h1>
+				<p class='text-muted-foreground text-lg'>Software Engineer · Builder</p>
+			</div>
+		</header>
+
+		<!-- Bio -->
+		<section class='prose-minimal space-y-4' transition:animate='fade'>
+			<p>
+				I'm a full-stack software engineer who believes that the design of impactful web technologies emerges
+				from iterative, team collaborations. I'm currently building with TypeScript, React, Tanstack, and
+				Python.
+			</p>
+			<p>
+				I have a background in audio engineering and music technology, and perform under the name <a
+					href='https://kabayun.com'
+					target='_blank'
+					rel='noopener noreferrer'>Kabayun</a
+				> in my free time.
+			</p>
+			<p>When at home in Philly, I am often on my bicycle or reading a sci-fi novel.</p>
+		</section>
+
+		<!-- Skills -->
+		<section class='pt-8 border-t border-border' transition:animate='fade'>
+			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Skills</h2>
+			<div class='flex flex-wrap gap-2'>
+				{
+					[
+						'TypeScript',
+						'JavaScript',
+						'Python',
+						'React',
+						'Tanstack',
+						'Next.js',
+						'Astro',
+						'Tailwind CSS',
+						'Shadcn/ui',
+						'GraphQL',
+						'PostgreSQL',
+						'SQLite',
+						'AWS',
+						'Django',
+						'Flask',
+						'Node.js',
+						'Prisma',
+						'REST APIs',
+						'Git',
+						'CI/CD',
+						'Jest',
+						'Docker',
+					].map((skill) => (
+						<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
+					))
+				}
+			</div>
+		</section>
+
+		<!-- Experience -->
+		<section class='pt-8 border-t border-border' transition:animate='fade'>
+			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Experience</h2>
+			<div class='space-y-1'>
+				<p class='text-foreground font-medium'>Software Engineer @ Comcast</p>
+				<p class='text-sm text-muted-foreground'>Currently engineering cybersecurity solutions</p>
+			</div>
+		</section>
+
+		<!-- Education -->
+		<section class='pt-8 border-t border-border' transition:animate='fade'>
+			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Education</h2>
+			<div class='space-y-2 text-muted-foreground'>
+				<p>Wesleyan University</p>
+				<p>Flatiron School</p>
+			</div>
+		</section>
+
+		<!-- Social Links -->
+		<SocialLinks client:visible />
+	</article>
+</BaseLayout>
