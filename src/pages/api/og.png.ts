@@ -5,9 +5,17 @@ export const GET: APIRoute = async ({ request }) => {
   const { searchParams, origin } = new URL(request.url);
   const title = searchParams.get("title") || "David Mostoller";
 
-  const logoUrl = new URL("/DM-gear.png", origin);
-  const logoData = await fetch(logoUrl).then((res) => res.arrayBuffer());
-  const logoBase64 = `data:image/png;base64,${Buffer.from(logoData).toString("base64")}`;
+  let logoBase64: string | null = null;
+  try {
+    const logoUrl = new URL("/DM-gear.png", origin);
+    const logoRes = await fetch(logoUrl);
+    if (logoRes.ok) {
+      const logoData = await logoRes.arrayBuffer();
+      logoBase64 = `data:image/png;base64,${Buffer.from(logoData).toString("base64")}`;
+    }
+  } catch {
+    // Fallback: render without logo
+  }
 
   return new ImageResponse(
     {
@@ -39,27 +47,29 @@ export const GET: APIRoute = async ({ request }) => {
               },
             },
           },
-          {
-            type: "div",
-            props: {
-              style: {
-                display: "flex",
-                justifyContent: "flex-end",
-                alignItems: "flex-start",
-              },
-              children: {
-                type: "img",
+          logoBase64
+            ? {
+                type: "div",
                 props: {
-                  src: logoBase64,
-                  width: 80,
-                  height: 80,
                   style: {
-                    opacity: 0.9,
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                  },
+                  children: {
+                    type: "img",
+                    props: {
+                      src: logoBase64,
+                      width: 80,
+                      height: 80,
+                      style: {
+                        opacity: 0.9,
+                      },
+                    },
                   },
                 },
-              },
-            },
-          },
+              }
+            : null,
           {
             type: "div",
             props: {

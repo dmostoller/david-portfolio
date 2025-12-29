@@ -1,6 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SocialLinks from '../components/sections/SocialLinks';
+import headshot from '../assets/headshot.jpg';
 
 export const prerender = true;
 ---
@@ -9,9 +11,13 @@ export const prerender = true;
 	<article class='space-y-12'>
 		<!-- Hero Section -->
 		<header class='flex flex-col sm:flex-row sm:items-center gap-6' transition:animate='slide'>
-			<img
-				src='/headshot-optimized.jpg'
+			<Image
+				src={headshot}
 				alt='David Mostoller'
+				width={224}
+				height={224}
+				densities={[1, 2]}
+				format='webp'
 				class='w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-2 ring-border shadow-lg'
 			/>
 			<div class='space-y-2'>
@@ -64,7 +70,6 @@ export const prerender = true;
 						'REST APIs',
 						'Git',
 						'CI/CD',
-						'Jest',
 						'Docker',
 					].map((skill) => (
 						<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
@@ -73,21 +78,30 @@ export const prerender = true;
 			</div>
 		</section>
 
-		<!-- Experience -->
+		<!-- Current Role -->
 		<section class='pt-8 border-t border-border' transition:animate='fade'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Experience</h2>
-			<div class='space-y-1'>
-				<p class='text-foreground font-medium'>Software Engineer @ Comcast</p>
-				<p class='text-sm text-muted-foreground'>Currently engineering cybersecurity solutions</p>
+			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Current Role</h2>
+			<div class='border-l-2 border-primary pl-4'>
+				<h3 class='font-medium text-foreground'>Software Engineer</h3>
+				<p class='text-sm text-muted-foreground'>Comcast · 2025 - Present</p>
+				<p class='text-sm text-muted-foreground mt-2'>
+					Developing full-stack cybersecurity applications that support enterprise-scale network protection.
+				</p>
 			</div>
 		</section>
 
 		<!-- Education -->
 		<section class='pt-8 border-t border-border' transition:animate='fade'>
 			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Education</h2>
-			<div class='space-y-2 text-muted-foreground'>
-				<p>Wesleyan University</p>
-				<p>Flatiron School</p>
+			<div class='space-y-4'>
+				<div class='border-l-2 border-primary pl-4'>
+					<h3 class='font-medium text-foreground'>Wesleyan University</h3>
+					<p class='text-sm text-muted-foreground'>B.A. Government</p>
+				</div>
+				<div class='border-l-2 border-primary pl-4'>
+					<h3 class='font-medium text-foreground'>Flatiron School</h3>
+					<p class='text-sm text-muted-foreground'>Software Engineering</p>
+				</div>
 			</div>
 		</section>
 

@@ -1,5 +1,9 @@
 import { motion } from "framer-motion";
-import { Github, Linkedin, BookOpen, AtSign, Mail } from "lucide-react";
+import Github from "lucide-react/dist/esm/icons/github";
+import Linkedin from "lucide-react/dist/esm/icons/linkedin";
+import BookOpen from "lucide-react/dist/esm/icons/book-open";
+import AtSign from "lucide-react/dist/esm/icons/at-sign";
+import Mail from "lucide-react/dist/esm/icons/mail";
 
 const links = [
   { label: "GitHub", href: "https://github.com/dmostoller", icon: Github },

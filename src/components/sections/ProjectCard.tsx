@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Github, ExternalLink } from "lucide-react";
+import Github from "lucide-react/dist/esm/icons/github";
+import ExternalLink from "lucide-react/dist/esm/icons/external-link";
 
 interface Props {
   title: string;

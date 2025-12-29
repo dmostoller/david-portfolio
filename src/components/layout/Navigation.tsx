@@ -8,11 +8,16 @@ interface NavItem {
 
 interface Props {
   items: NavItem[];
+  currentPath: string;
 }
 
-export default function Navigation({ items }: Props) {
-  const currentPath =
-    typeof window !== "undefined" ? window.location.pathname : "/";
+export default function Navigation({ items, currentPath }: Props) {
+
+  const handleMouseEnter = (href: string) => {
+    if (href === "/reading") {
+      fetch("/api/articles.json").catch(() => {});
+    }
+  };
 
   return (
     <nav className="flex items-center gap-1 sm:gap-2">
@@ -23,6 +28,7 @@ export default function Navigation({ items }: Props) {
           <motion.a
             key={item.href}
             href={item.href}
+            onMouseEnter={() => handleMouseEnter(item.href)}
             className={cn(
               "relative px-3 py-2 text-sm transition-colors rounded-md",
               isActive
@@ -34,7 +40,7 @@ export default function Navigation({ items }: Props) {
             transition={{
               delay: index * 0.05,
               duration: 0.2,
-              ease: [0.22, 1, 0.36, 1]
+              ease: [0.22, 1, 0.36, 1],
             }}
           >
             {item.label}

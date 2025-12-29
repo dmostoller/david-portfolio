@@ -1,8 +1,9 @@
 [
   {
-    "title": "Tuido",
-    "description": "Terminal-inspired task management for the modern developer.",
+    "title": "Tui:do",
+    "description": "Task management that lives in your terminal.",
     "tech": ["Python", "Textual", "Redis"],
+    "github": "https://github.com/dmostoller/tuido",
     "live": "https://tuido.dev"
   },
   {
@@ -47,7 +48,14 @@
   {
     "title": "Musician's Base",
     "description": "Marketing & Content Platform for Musicians with audio player integration.",
-    "tech": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "Cloudinary", "WaveSurfer"],
+    "tech": [
+      "Next.js",
+      "TypeScript",
+      "Prisma",
+      "PostgreSQL",
+      "Cloudinary",
+      "WaveSurfer"
+    ],
     "github": "https://github.com/dmostoller/superluminal-next",
     "live": "https://www.superluminalpsy.com"
   },

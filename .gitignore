@@ -30,3 +30,9 @@ pnpm-debug.log*
 
 # typescript
 *.tsbuildinfo
+
+# claude code
+.claude/
+
+# vscode
+.vscode/
