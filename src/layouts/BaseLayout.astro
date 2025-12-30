@@ -11,9 +11,14 @@ interface Props {
 	ogImage?: string;
 }
 
-const { title, description = 'Software engineer building thoughtful digital experiences.', ogImage } = Astro.props;
+const {
+	title,
+	description = 'Software engineer building thoughtful digital experiences.',
+	ogImage,
+} = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = ogImage || new URL(`/api/og.png?title=${encodeURIComponent(title)}`, Astro.site).toString();
+const ogImageURL =
+	ogImage || new URL(`/api/og.png?title=${encodeURIComponent(title)}`, Astro.site).toString();
 ---
 
 <!doctype html>
@@ -21,7 +26,10 @@ const ogImageURL = ogImage || new URL(`/api/og.png?title=${encodeURIComponent(ti
 	<head>
 		<meta charset='UTF-8' />
 		<meta name='viewport' content='width=device-width, initial-scale=1' />
-		<link rel='icon' type='image/x-icon' href='/favicon.ico' />
+		<link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+		<link rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png' />
+		<link rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png' />
+		<link rel='manifest' href='/site.webmanifest' />
 		<link rel='canonical' href={canonicalURL} />
 
 		<!-- Fonts (async load to prevent render blocking) -->
@@ -119,13 +127,13 @@ const ogImageURL = ogImage || new URL(`/api/og.png?title=${encodeURIComponent(ti
 	</head>
 	<body class='min-h-screen flex flex-col bg-background text-foreground'>
 		<a
-			href="#main-content"
-			class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:font-medium focus:shadow-lg"
+			href='#main-content'
+			class='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:font-medium focus:shadow-lg'
 		>
 			Skip to main content
 		</a>
 		<Header />
-		<main id="main-content" tabindex="-1" class='flex-1 w-full max-w-170 mx-auto px-6 py-12 md:py-20'>
+		<main id='main-content' tabindex='-1' class='flex-1 w-full max-w-170 mx-auto px-6 py-12 md:py-20'>
 			<slot />
 		</main>
 		<Footer />
