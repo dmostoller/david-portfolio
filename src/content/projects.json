@@ -37,7 +37,7 @@
     "description": "A community for React, Next.js, and TypeScript enthusiasts in Philadelphia.",
     "tech": ["Next.js", "TypeScript", "Prisma", "PostgreSQL", "TailwindCSS"],
     "github": "https://github.com/dmostoller/philareact",
-    "live": "https://www.philareact.org/"
+    "live": "https://philareact.vercel.app/"
   },
   {
     "title": "South River Studios",
