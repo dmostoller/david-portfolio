@@ -9,6 +9,7 @@ import sitemap from "@astrojs/sitemap";
 // https://astro.build/config
 export default defineConfig({
   site: "https://www.davidmostoller.com",
+  trailingSlash: "never",
   integrations: [
     react({
       babel: {

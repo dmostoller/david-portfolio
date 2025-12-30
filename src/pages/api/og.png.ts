@@ -4,6 +4,8 @@ import type { APIRoute } from "astro";
 export const GET: APIRoute = async ({ request }) => {
   const { searchParams, origin } = new URL(request.url);
   const title = searchParams.get("title") || "David Mostoller";
+  const isHomePage = title === "David Mostoller";
+  const subtitle = isHomePage ? "Software Engineer" : "David Mostoller";
 
   let logoBase64: string | null = null;
   try {
@@ -122,7 +124,7 @@ export const GET: APIRoute = async ({ request }) => {
                             fontWeight: 500,
                             color: "#a3a3a3",
                           },
-                          children: "David Mostoller",
+                          children: subtitle,
                         },
                       },
                     ],

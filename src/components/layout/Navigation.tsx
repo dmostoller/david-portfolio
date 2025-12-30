@@ -22,7 +22,7 @@ export default function Navigation({ items, currentPath }: Props) {
       aria-label="Main navigation"
       className="flex items-center gap-1 sm:gap-2"
     >
-      {items.map((item, index) => {
+      {items.map((item) => {
         const isActive = currentPath === item.href;
 
         return (

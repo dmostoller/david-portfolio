@@ -177,8 +177,9 @@
     border-radius: 2px;
   }
 
-  /* Hide focus outline on main content when focused programmatically */
-  #main-content:focus:not(:focus-visible) {
+  /* Main content is not interactive - hide focus outline entirely.
+     It only receives focus for skip-to-content and page transitions. */
+  #main-content:focus {
     outline: none;
   }
 }

@@ -9,12 +9,13 @@ const navItems = [
 	{ label: 'Reading', href: '/reading' },
 ];
 
-const currentPath = Astro.url.pathname;
+// Normalize path by removing trailing slash (except for root)
+const currentPath = Astro.url.pathname === '/' ? '/' : Astro.url.pathname.replace(/\/$/, '');
 ---
 
 <header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
 	<div class='flex items-center justify-between'>
 		<Navigation client:idle items={navItems} currentPath={currentPath} />
-		<ThemeToggle client:visible />
+		<ThemeToggle client:visible transition:persist />
 	</div>
 </header>

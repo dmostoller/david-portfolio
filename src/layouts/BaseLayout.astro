@@ -85,11 +85,9 @@ const ogImageURL = ogImage || new URL(`/api/og.png?title=${encodeURIComponent(ti
 		</script>
 
 		<!-- Button press animation -->
-		<script is:inline>
-			(function() {
-				const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-				if (prefersReducedMotion) return;
-
+		<script>
+			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			if (!prefersReducedMotion) {
 				const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
 				let pressedEl = null;
 
@@ -116,7 +114,7 @@ const ogImageURL = ogImage || new URL(`/api/og.png?title=${encodeURIComponent(ti
 				document.addEventListener('pointerup', handleRelease);
 				document.addEventListener('pointercancel', handleRelease);
 				document.addEventListener('pointerleave', handleRelease);
-			})();
+			}
 		</script>
 	</head>
 	<body class='min-h-screen flex flex-col bg-background text-foreground'>
