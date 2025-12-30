@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface Props {
   title: string;
@@ -15,6 +15,7 @@ export default function BlogPostPreview({
   description,
   index,
 }: Props) {
+  const shouldReduceMotion = useReducedMotion();
   const formattedDate = new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -27,14 +28,20 @@ export default function BlogPostPreview({
       target="_blank"
       rel="noopener noreferrer"
       className="group block p-4 -mx-4 rounded-lg hover:bg-muted/50 transition-colors"
-      initial={{ opacity: 0, y: 10 }}
+      initial={
+        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }
+      }
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{
-        delay: index * 0.05,
-        duration: 0.2,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              delay: index * 0.05,
+              duration: 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }
+      }
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
         <div className="space-y-1 flex-1">
@@ -45,7 +52,10 @@ export default function BlogPostPreview({
             {description}
           </p>
         </div>
-        <time className="text-sm text-muted-foreground whitespace-nowrap">
+        <time
+          dateTime={date}
+          className="text-sm text-muted-foreground whitespace-nowrap"
+        >
           {formattedDate}
         </time>
       </div>

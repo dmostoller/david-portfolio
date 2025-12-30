@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import ExternalLink from "lucide-react/dist/esm/icons/external-link";
 import Book from "lucide-react/dist/esm/icons/book";
 import BookOpen from "lucide-react/dist/esm/icons/book-open";
 import Bookmark from "lucide-react/dist/esm/icons/bookmark";
+import Star from "lucide-react/dist/esm/icons/star";
 import type { Book as BookType } from "../../lib/types/reading";
 
 interface Props extends BookType {
@@ -10,9 +11,17 @@ interface Props extends BookType {
 }
 
 const statusConfig = {
-  reading: { icon: BookOpen, label: "Currently Reading", color: "text-primary" },
+  reading: {
+    icon: BookOpen,
+    label: "Currently Reading",
+    color: "text-primary",
+  },
   completed: { icon: Book, label: "Finished", color: "text-muted-foreground" },
-  "want-to-read": { icon: Bookmark, label: "Want to Read", color: "text-muted-foreground" },
+  "want-to-read": {
+    icon: Bookmark,
+    label: "Want to Read",
+    color: "text-muted-foreground",
+  },
 };
 
 export default function BookCard({
@@ -24,19 +33,26 @@ export default function BookCard({
   notes,
   index,
 }: Props) {
+  const shouldReduceMotion = useReducedMotion();
   const StatusIcon = statusConfig[status].icon;
 
   return (
     <motion.div
       className="group p-4 -mx-4 rounded-lg hover:bg-muted/50 transition-colors"
-      initial={{ opacity: 0, y: 10 }}
+      initial={
+        shouldReduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }
+      }
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{
-        delay: index * 0.05,
-        duration: 0.2,
-        ease: [0.22, 1, 0.36, 1],
-      }}
+      transition={
+        shouldReduceMotion
+          ? { duration: 0 }
+          : {
+              delay: index * 0.05,
+              duration: 0.2,
+              ease: [0.22, 1, 0.36, 1],
+            }
+      }
     >
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1.5 flex-1">
@@ -49,15 +65,20 @@ export default function BookCard({
           <h3 className="font-medium text-foreground">{title}</h3>
           <p className="text-sm text-muted-foreground">{author}</p>
           {rating && (
-            <div className="flex gap-0.5" aria-label={`Rating: ${rating} out of 5 stars`} role="img">
+            <div
+              className="flex gap-0.5"
+              aria-label={`Rating: ${rating} out of 5 stars`}
+              role="img"
+            >
               {[...Array(5)].map((_, i) => (
-                <span
+                <Star
                   key={i}
-                  className={i < rating ? "text-primary" : "text-muted"}
+                  size={14}
+                  className={
+                    i < rating ? "text-primary fill-primary" : "text-muted"
+                  }
                   aria-hidden="true"
-                >
-                  *
-                </span>
+                />
               ))}
             </div>
           )}
