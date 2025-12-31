@@ -7,6 +7,13 @@
     "live": "https://tuido.dev"
   },
   {
+    "title": "Private Video Course Platform",
+    "description": "A secure platform for selling video courses and webinars with gated content access and private streaming.",
+    "tech": ["Next.js", "TypeScript", "PostgreSQL", "Drizzle", "Tanstack", "R2", "TailwindCSS", "shadcn/ui", "Polar"],
+    "github": "https://github.com/dmostoller/pvcp",
+    "live": "https://kabayun-academy.com/"
+  },
+  {
     "title": "Neighborhood Pride Landscaping",
     "description": "A marketing website for a South Jersey based landscaping company.",
     "tech": ["Next.js", "TailwindCSS", "shadcn/ui"],
