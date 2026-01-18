@@ -219,8 +219,22 @@
   }
 
   .prose-minimal a {
-    @apply text-primary hover:text-primary/80 underline underline-offset-4;
+    @apply font-medium relative;
     @apply transition-colors duration-200;
+  }
+
+  .prose-minimal a::after {
+    content: "";
+    @apply absolute bottom-0 left-0 h-px w-0 bg-primary;
+    @apply transition-[width] duration-300;
+  }
+
+  .prose-minimal a:hover {
+    @apply text-primary;
+  }
+
+  .prose-minimal a:hover::after {
+    @apply w-full;
   }
 }
 
