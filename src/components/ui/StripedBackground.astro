@@ -45,6 +45,11 @@ const patternId = `stripes-${Math.random().toString(36).slice(2, 9)}`;
 
 <style>
   div {
-    mask-image: radial-gradient(600px circle at center, transparent, white);
+    mask-image: radial-gradient(
+      ellipse 80% 70% at center,
+      transparent 0%,
+      transparent 40%,
+      white 100%
+    );
   }
 </style>
