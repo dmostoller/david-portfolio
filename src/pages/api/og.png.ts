@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ request }) => {
     titleParts[0] === "David Mostoller";
 
   const title = isHomePage ? "David Mostoller" : titleParts[0];
-  const subtitle = isHomePage ? "Software Engineer" : null;
+  const subtitle = isHomePage ? titleParts[1] || "Senior Software Engineer" : null;
 
   // For home page, split name into two lines
   const [firstName, lastName] = isHomePage

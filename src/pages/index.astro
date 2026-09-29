@@ -7,7 +7,10 @@ import headshot from '../assets/headshot.jpg';
 export const prerender = true;
 ---
 
-<BaseLayout title='David Mostoller — Software Engineer'>
+<BaseLayout
+	title='David Mostoller — Senior Software Engineer'
+	description='Senior software engineer building security tools, threat intelligence platforms, and automated defenses for network security at Comcast.'
+>
 	<article class='space-y-12'>
 		<!-- Hero Section -->
 		<header class='flex flex-col sm:flex-row sm:items-center gap-6' transition:animate='slide'>
@@ -22,16 +25,16 @@ export const prerender = true;
 			/>
 			<div class='space-y-2'>
 				<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>David Mostoller</h1>
-				<p class='text-muted-foreground text-lg'>Software Engineer · Builder · Musician</p>
+				<p class='text-muted-foreground text-lg'>Senior Software Engineer · Cybersecurity · Musician</p>
 			</div>
 		</header>
 
 		<!-- Bio -->
 		<section class='prose-minimal space-y-4' transition:animate='fade'>
 			<p>
-				I'm a full-stack software engineer who believes that the design of impactful web technologies emerges
-				from iterative, team collaborations. I'm currently building with TypeScript, React, Tanstack, and
-				Python.
+				I'm a senior software engineer on Comcast's DDoS Mitigation Services team, building the internal tools,
+				intelligence platforms, and automation that security engineers use to protect one of the largest
+				networks in the U.S.
 			</p>
 			<p>
 				Outside of software, I produce electronic music as <a
@@ -49,34 +52,49 @@ export const prerender = true;
 		<!-- Skills -->
 		<section class='pt-8 border-t border-border' transition:animate='fade'>
 			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Skills</h2>
-			<div class='flex flex-wrap gap-2'>
-				{
-					[
-						'TypeScript',
-						'JavaScript',
-						'Python',
-						'React',
-						'Tanstack',
-						'Next.js',
-						'Astro',
-						'Tailwind CSS',
-						'Shadcn/ui',
-						'GraphQL',
-						'PostgreSQL',
-						'SQLite',
-						'AWS',
-						'Django',
-						'Flask',
-						'Node.js',
-						'Prisma',
-						'REST APIs',
-						'Git',
-						'CI/CD',
-						'Docker',
-					].map((skill) => (
-						<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
-					))
-				}
+			<div class='space-y-3'>
+				<div class='flex flex-wrap gap-2'>
+					{
+						[
+							'Python',
+							'TypeScript',
+							'JavaScript',
+							'React',
+							'Tanstack',
+							'Next.js',
+							'Astro',
+							'Tailwind CSS',
+							'Shadcn/ui',
+							'GraphQL',
+							'PostgreSQL',
+							'SQLite',
+							'AWS',
+							'Django',
+							'Flask',
+							'Node.js',
+							'Prisma',
+							'REST APIs',
+							'Git',
+							'CI/CD',
+							'Docker',
+						].map((skill) => (
+							<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
+						))
+					}
+				</div>
+				<div class='flex flex-wrap gap-2'>
+					{
+						[
+							'DDoS Mitigation',
+							'Threat Intelligence',
+							'Network Traffic Analysis',
+							'Security Automation',
+							'LLM Agents',
+						].map((skill) => (
+							<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
+						))
+					}
+				</div>
 			</div>
 		</section>
 
@@ -84,11 +102,22 @@ export const prerender = true;
 		<section class='pt-8 border-t border-border' transition:animate='fade'>
 			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Current Role</h2>
 			<div class='border-l-2 border-primary pl-4'>
-				<h3 class='font-medium text-foreground'>Software Engineer</h3>
+				<h3 class='font-medium text-foreground'>Senior Software Engineer, Network Security</h3>
 				<p class='text-sm text-muted-foreground'>Comcast · 2025 - Present</p>
-				<p class='text-sm text-muted-foreground mt-2'>
-					Developing full-stack cybersecurity applications that support enterprise-scale network protection.
-				</p>
+				<ul class='text-sm text-muted-foreground mt-2 space-y-1.5 list-disc pl-4'>
+					<li>
+						Build internal tools and platforms that help network and security engineers find, understand, and
+						stop threats at enterprise scale.
+					</li>
+					<li>
+						Develop threat intelligence and automation systems, including AI-assisted analysis, that turn raw
+						network data into clear, actionable insight.
+					</li>
+					<li>
+						Work closely with security engineers to turn their operational needs into reliable, maintainable
+						software.
+					</li>
+				</ul>
 			</div>
 		</section>
 
