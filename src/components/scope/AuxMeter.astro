@@ -1,0 +1,38 @@
+---
+// A stereo level meter. It idles on its own and console.ts drives it harder
+// when the visitor types or scrolls.
+interface Props {
+	/** Include a display utility (e.g. "flex" or "hidden sm:flex"); the meter sets none itself. */
+	class?: string;
+}
+
+const { class: className = 'flex' } = Astro.props;
+
+// Offset durations keep L and R from moving in lockstep before the script takes over.
+const channels = [
+	{ label: 'L', duration: '2.6s', delay: '0s' },
+	{ label: 'R', duration: '3.1s', delay: '-1.2s' },
+];
+const scale = ['0', '-6', '-12', '-24', '-48'];
+---
+
+<div aria-hidden='true' class:list={['justify-center gap-2 text-[9px] leading-none text-muted-foreground', className]}>
+	{
+		channels.map((channel) => (
+			<div class='flex w-3 flex-col gap-1.5'>
+				<div class='relative flex-1'>
+					<div class='meter meter-unlit absolute inset-0' />
+					<div
+						class='meter meter-lit absolute inset-0'
+						data-meter-channel
+						style={`--meter-duration: ${channel.duration}; --meter-delay: ${channel.delay}`}
+					/>
+				</div>
+				<span class='text-center'>{channel.label}</span>
+			</div>
+		))
+	}
+	<div class='ml-1 flex flex-col justify-between pb-[15px] text-right'>
+		{scale.map((db) => <span>{db}</span>)}
+	</div>
+</div>

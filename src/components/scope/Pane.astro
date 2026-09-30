@@ -1,0 +1,33 @@
+---
+// A console pane: a bordered window with a title bar.
+interface Props {
+	title: string;
+	/** Short prefix shown in the accent color, e.g. "01". */
+	index?: string;
+	/** Plain-text note on the right of the title bar. Use the "aside" slot for markup. */
+	aside?: string;
+	class?: string;
+	bodyClass?: string;
+}
+
+const { title, index, aside, class: className, bodyClass = 'p-3 sm:p-4' } = Astro.props;
+---
+
+<section class:list={['rounded-md border border-border bg-card/70 backdrop-blur-[2px]', className]}>
+	<h2 class='flex h-8 items-center justify-between gap-3 border-b border-border px-3 text-[11px] font-normal text-muted-foreground'>
+		<span class='flex min-w-0 items-center gap-1.5'>
+			{index && <span class='text-primary'>{index}</span>}
+			<span class='truncate'>{title}</span>
+		</span>
+		{
+			Astro.slots.has('aside') ?
+				<span class='flex shrink-0 items-center gap-3'>
+					<slot name='aside' />
+				</span>
+			:	aside && <span class='shrink-0'>{aside}</span>
+		}
+	</h2>
+	<div class={bodyClass}>
+		<slot />
+	</div>
+</section>

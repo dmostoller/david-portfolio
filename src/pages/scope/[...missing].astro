@@ -1,0 +1,49 @@
+---
+// Scope's 404: any unknown path under /mockups/scope gets a dropped packet.
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import Pane from '../../components/scope/Pane.astro';
+import { scopeHref } from '../../lib/routes';
+
+export const prerender = false;
+
+const missing = Astro.params.missing ?? '';
+Astro.response.status = 404;
+
+const hops = [
+	{ n: 1, host: 'dbm.local', time: '0.4 ms' },
+	{ n: 2, host: 'aux.bus', time: '1.1 ms' },
+	{ n: 3, host: 'signal.path', time: '3.6 ms' },
+	{ n: 4, host: '* * *', time: '' },
+	{ n: 5, host: '* * *', time: '' },
+];
+---
+
+<ScopeLayout page='missing' status='404' missingPath={missing}>
+	<div class='mx-auto max-w-2xl pt-6'>
+		<h1 class='text-3xl tracking-tight text-foreground sm:text-4xl'>
+			packet dropped<span class='text-primary'>.</span>
+		</h1>
+		<p class='mt-2 text-muted-foreground'>Nothing lives at ~/{missing}.</p>
+
+		<Pane title={`traceroute ~/${missing}`} class='mt-6' bodyClass='p-0'>
+			<ol class='divide-y divide-border text-[12px]'>
+				{
+					hops.map((hop) => (
+						<li class='grid grid-cols-[2rem_1fr_auto] gap-3 px-3 py-2'>
+							<span class='text-muted-foreground'>{hop.n}</span>
+							<span class={hop.time ? 'text-foreground' : 'text-muted-foreground'}>{hop.host}</span>
+							<span class='text-muted-foreground'>{hop.time}</span>
+						</li>
+					))
+				}
+				<li class='px-3 py-2 text-primary'>no route to host</li>
+			</ol>
+		</Pane>
+
+		<p class='mt-6 text-[12px] text-muted-foreground'>
+			Try <a href={scopeHref('home')} class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'
+				>cd ~</a
+			>, press 1–4, or type <span class='text-foreground'>ls</span>.
+		</p>
+	</div>
+</ScopeLayout>

@@ -1,0 +1,96 @@
+---
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import Pane from '../../components/scope/Pane.astro';
+import ScopeTitle from '../../components/scope/ScopeTitle.astro';
+import { feedCacheControl, press } from '../../lib/content';
+import { formatDate, timestamp } from '../../lib/format';
+import { getMediumPosts } from '../../lib/medium';
+
+// Rendered on request and cached at the CDN, like the Signal version.
+export const prerender = false;
+
+const posts = await getMediumPosts();
+Astro.response.headers.set('Cache-Control', feedCacheControl(posts.length > 0));
+
+// One log, newest first: press pieces and Medium posts together, tagged by source.
+const entries = [
+	...press.map((a) => ({
+		title: a.title,
+		href: a.url,
+		date: a.date,
+		source: a.publication.toLowerCase(),
+		excerpt: a.description,
+		press: true,
+	})),
+	...posts.map((p) => ({ title: p.title, href: p.href, date: p.date, source: 'medium', excerpt: p.excerpt, press: false })),
+]
+	.sort((a, b) => timestamp(b.date) - timestamp(a.date))
+	.map((entry, i) => ({ ...entry, key: `entry-${i + 1}` }));
+---
+
+<ScopeLayout page='blog' status={`${entries.length} entries`}>
+	<ScopeTitle
+		title='writing'
+		description='Published work and thoughts on software, design, and building things.'
+		meta={`${press.length} published · ${posts.length} on medium`}
+	/>
+
+	<div class='grid items-start gap-4 lg:grid-cols-12'>
+		<Pane title='tail -f writing.log' aside={`${entries.length} entries`} class='lg:col-span-8' bodyClass='p-0'>
+			<ol class='divide-y divide-border text-[12px]'>
+				{
+					entries.map((entry) => (
+						<li
+							data-row
+							data-href={entry.href}
+							data-detail={entry.key}
+							class='grid grid-cols-[5.75rem_1fr] gap-x-3 px-3 py-2.5 sm:grid-cols-[5.75rem_7rem_1fr]'
+						>
+							<time datetime={entry.date} class='text-muted-foreground'>
+								{formatDate(entry.date, 'iso')}
+							</time>
+							<span class:list={['hidden truncate sm:block', entry.press ? 'text-primary' : 'text-muted-foreground']}>
+								[{entry.source}]
+							</span>
+							<div class='min-w-0'>
+								<a href={entry.href} class='text-foreground transition-colors hover:text-primary'>
+									{entry.title}
+								</a>
+								<p class='mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>{entry.excerpt}</p>
+							</div>
+						</li>
+					))
+				}
+				<li aria-hidden='true' class='px-3 py-2.5 text-muted-foreground'>
+					-- waiting for new entries <span class='cursor-blink text-primary'>▍</span>
+				</li>
+			</ol>
+			<p class='border-t border-border px-3 py-2.5 text-[11px]'>
+				<a href='https://medium.com/@dmostoller' class='text-muted-foreground transition-colors hover:text-primary'>
+					all posts on medium ↗
+				</a>
+			</p>
+		</Pane>
+
+		<Pane title='preview' class='hidden lg:sticky lg:top-16 lg:col-span-4 lg:block'>
+			{
+				entries.map((entry, i) => (
+					<article data-detail-panel={entry.key} hidden={i !== 0} class='space-y-3'>
+						<p class='text-[11px] text-muted-foreground'>
+							<span class={entry.press ? 'text-primary' : undefined}>{entry.source}</span> · {formatDate(entry.date)}
+						</p>
+						<h3 class='text-base leading-snug text-foreground'>{entry.title}</h3>
+						<p class='leading-relaxed text-muted-foreground'>{entry.excerpt}</p>
+						<a
+							href={entry.href}
+							class='inline-block rounded border border-primary/60 px-2.5 py-1 text-[12px] text-primary transition-colors hover:bg-primary hover:text-background'
+						>
+							read ↗
+						</a>
+						<p class='border-t border-border pt-3 text-[10px] text-muted-foreground'>↵ open · j/k next · / filter</p>
+					</article>
+				))
+			}
+		</Pane>
+	</div>
+</ScopeLayout>

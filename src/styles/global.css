@@ -137,6 +137,12 @@
 @layer base {
   html {
     @apply antialiased;
+    color-scheme: light;
+  }
+
+  /* Native scrollbars and form controls follow the theme. */
+  html.dark {
+    color-scheme: dark;
   }
 
   /* Only enable smooth scroll if user prefers motion */
@@ -219,22 +225,16 @@
   }
 
   .prose-minimal a {
-    @apply font-medium relative;
-    @apply transition-colors duration-200;
-  }
-
-  .prose-minimal a::after {
-    content: "";
-    @apply absolute bottom-0 left-0 h-px w-0 bg-primary;
-    @apply transition-[width] duration-300;
+    color: var(--foreground);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklch, var(--primary) 45%, transparent);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 150ms;
   }
 
   .prose-minimal a:hover {
-    @apply text-primary;
-  }
-
-  .prose-minimal a:hover::after {
-    @apply w-full;
+    text-decoration-color: var(--primary);
   }
 }
 

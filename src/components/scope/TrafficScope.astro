@@ -1,0 +1,74 @@
+---
+// The scrolling traffic chart: attack bursts get scrubbed out of the clean signal.
+import { scrubbedTraffic } from '../../lib/scope/traffic';
+
+interface Props {
+	/** Height utilities for the plot. */
+	class?: string;
+}
+
+const { class: className = 'h-40' } = Astro.props;
+const traffic = scrubbedTraffic();
+const thresholdTop = `${((traffic.thresholdY / traffic.height) * 100).toFixed(2)}%`;
+---
+
+<div class='relative' aria-hidden='true'>
+	<svg viewBox={`0 0 ${traffic.width} ${traffic.height}`} preserveAspectRatio='none' class:list={['block w-full', className]}>
+		<defs>
+			<pattern id='scrub-hatch' width='5' height='5' patternUnits='userSpaceOnUse' patternTransform='rotate(45)'>
+				<line x1='0' y1='0' x2='0' y2='5' stroke='currentColor' stroke-width='1.2'></line>
+			</pattern>
+		</defs>
+		<line
+			x1='0'
+			x2={traffic.width}
+			y1={traffic.thresholdY}
+			y2={traffic.thresholdY}
+			stroke='currentColor'
+			stroke-dasharray='3 4'
+			stroke-width='1'
+			vector-effect='non-scaling-stroke'
+			class='text-muted-foreground/50'></line>
+		<g class='traffic-scroll'>
+			<path d={traffic.scrubbed} fill='url(#scrub-hatch)' class='text-muted-foreground/35'></path>
+			<path
+				d={traffic.ingress}
+				fill='none'
+				stroke='currentColor'
+				stroke-width='1'
+				stroke-linejoin='round'
+				vector-effect='non-scaling-stroke'
+				class='text-muted-foreground/70'></path>
+			<path
+				d={traffic.clean}
+				fill='none'
+				stroke='currentColor'
+				stroke-width='1.75'
+				stroke-linejoin='round'
+				vector-effect='non-scaling-stroke'
+				class='text-primary'></path>
+		</g>
+	</svg>
+	<span
+		class='absolute right-2 -translate-y-full pb-0.5 text-[10px] text-muted-foreground'
+		style={`top: ${thresholdTop}`}
+	>
+		detect
+	</span>
+</div>
+
+<style>
+	.traffic-scroll {
+		animation: traffic-scroll 28s linear infinite;
+	}
+	@keyframes traffic-scroll {
+		to {
+			transform: translateX(-680px);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.traffic-scroll {
+			animation: none;
+		}
+	}
+</style>

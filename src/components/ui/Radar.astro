@@ -1,0 +1,43 @@
+---
+const rings = [110, 190, 270, 350];
+---
+
+<div
+	aria-hidden='true'
+	class='absolute inset-x-0 top-0 h-[420px] sm:h-[560px] overflow-hidden -z-10 pointer-events-none'
+>
+	<div
+		class='absolute top-0 right-0 w-[480px] h-[480px] sm:w-[760px] sm:h-[760px] translate-x-1/2 -translate-y-1/2'
+	>
+		<svg viewBox='-380 -380 760 760' class='w-full h-full text-primary'>
+			{
+				rings.map((r, i) => (
+					<circle r={r} fill='none' stroke='currentColor' stroke-opacity={0.3 - i * 0.06} stroke-width='1' />
+				))
+			}
+		</svg>
+		<div class='radar-sweep absolute inset-0 rounded-full'></div>
+	</div>
+</div>
+
+<style>
+	.radar-sweep {
+		background: conic-gradient(
+			from 180deg,
+			transparent 0deg 290deg,
+			color-mix(in oklch, var(--primary) 20%, transparent) 360deg
+		);
+		mask-image: radial-gradient(closest-side, black 55%, transparent 100%);
+		animation: radar-sweep 12s linear infinite;
+	}
+	@keyframes radar-sweep {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.radar-sweep {
+			animation: none;
+		}
+	}
+</style>

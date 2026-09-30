@@ -1,0 +1,120 @@
+---
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import Pane from '../../components/scope/Pane.astro';
+import ScopeTitle from '../../components/scope/ScopeTitle.astro';
+import { archivedProjects, projectLink, selectedProjects } from '../../lib/content';
+
+export const prerender = true;
+
+// Featured projects are "running"; the archive is "sleeping", like ps states.
+const processes = [
+	...selectedProjects.map((p) => ({ ...p, stat: 'RUN' as const })),
+	...archivedProjects.map((p) => ({ ...p, stat: 'SLEEP' as const })),
+].map((p, i) => ({ ...p, pid: String(i + 1).padStart(3, '0'), key: `project-${i + 1}` }));
+
+const statClass = (stat: 'RUN' | 'SLEEP') => (stat === 'RUN' ? 'text-primary' : 'text-muted-foreground/70');
+const linkClass = 'text-muted-foreground transition-colors hover:text-primary';
+---
+
+<ScopeLayout page='projects' status={`${processes.length} procs`}>
+	<ScopeTitle
+		title='projects'
+		description="A selection of things I've built."
+		meta={`${selectedProjects.length} running · ${archivedProjects.length} sleeping`}
+	/>
+
+	<div class='grid items-start gap-4 lg:grid-cols-12'>
+		<Pane title='ps aux --sort=featured' aside={`${processes.length} procs`} class='lg:col-span-8' bodyClass='p-0'>
+			<div class='overflow-x-auto'>
+			<table class='w-full text-[12px]'>
+				<thead class='text-[10px] uppercase tracking-wider text-muted-foreground'>
+					<tr class='border-b border-border'>
+						<th scope='col' class='hidden w-14 px-3 py-2 text-left font-normal sm:table-cell'>pid</th>
+						<th scope='col' class='px-3 py-2 text-left font-normal'>name</th>
+						<th scope='col' class='w-16 px-3 py-2 text-left font-normal'>stat</th>
+						<th scope='col' class='hidden px-3 py-2 text-left font-normal md:table-cell'>stack</th>
+						<th scope='col' class='px-3 py-2 text-right font-normal'><span class='sr-only'>links</span></th>
+					</tr>
+				</thead>
+				<tbody class='divide-y divide-border'>
+					{
+						processes.map((p) => (
+							<tr data-row data-href={projectLink(p)} data-detail={p.key}>
+								<td class='hidden px-3 py-2.5 align-top text-muted-foreground sm:table-cell'>{p.pid}</td>
+								<td class='px-3 py-2.5 align-top'>
+									<a href={projectLink(p)} class='text-foreground transition-colors hover:text-primary'>
+										{p.title}
+									</a>
+									<p class='mt-1 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>{p.description}</p>
+								</td>
+								<td class:list={['px-3 py-2.5 align-top', statClass(p.stat)]}>{p.stat}</td>
+								<td class='hidden px-3 py-2.5 align-top text-muted-foreground md:table-cell'>
+									{p.tech.slice(0, 3).join(', ').toLowerCase()}
+								</td>
+								<td class='whitespace-nowrap px-3 py-2.5 text-right align-top'>
+									{p.live && (
+										<a href={p.live} class={linkClass}>
+											live ↗
+										</a>
+									)}
+									{p.live && p.github && ' '}
+									{p.github && (
+										<a href={p.github} class={linkClass}>
+											src ↗
+										</a>
+									)}
+								</td>
+							</tr>
+						))
+					}
+				</tbody>
+			</table>
+			</div>
+		</Pane>
+
+		<Pane title='details' class='hidden lg:sticky lg:top-16 lg:col-span-4 lg:block'>
+			{
+				processes.map((p, i) => (
+					<article data-detail-panel={p.key} hidden={i !== 0} class='space-y-4'>
+						<div class='flex items-baseline justify-between gap-3'>
+							<h3 class='text-lg leading-snug text-foreground'>{p.title}</h3>
+							<span class:list={['text-[11px]', statClass(p.stat)]}>
+								{p.pid} · {p.stat}
+							</span>
+						</div>
+						<p class='leading-relaxed text-muted-foreground'>{p.description}</p>
+						<div>
+							<p class='mb-2 text-[10px] uppercase tracking-wider text-muted-foreground'>stack</p>
+							<ul class='flex flex-wrap gap-1.5'>
+								{p.tech.map((t) => (
+									<li class='rounded border border-border px-1.5 py-0.5 text-[11px] text-muted-foreground'>
+										{t.toLowerCase()}
+									</li>
+								))}
+							</ul>
+						</div>
+						<div class='flex flex-wrap gap-2'>
+							{p.live && (
+								<a
+									href={p.live}
+									class='rounded border border-primary/60 px-2.5 py-1 text-[12px] text-primary transition-colors hover:bg-primary hover:text-background'
+								>
+									open live ↗
+								</a>
+							)}
+							{p.github && (
+								<a
+									href={p.github}
+									class='rounded border border-border px-2.5 py-1 text-[12px] text-muted-foreground transition-colors hover:border-foreground hover:text-foreground'
+								>
+									source ↗
+								</a>
+							)}
+						</div>
+						<p class='border-t border-border pt-3 text-[10px] text-muted-foreground'>↵ open · j/k next · / filter</p>
+					</article>
+				))
+			}
+		</Pane>
+	</div>
+</ScopeLayout>

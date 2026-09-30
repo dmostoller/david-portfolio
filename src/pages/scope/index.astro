@@ -1,0 +1,206 @@
+---
+import { Image } from 'astro:assets';
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import Pane from '../../components/scope/Pane.astro';
+import TrafficScope from '../../components/scope/TrafficScope.astro';
+import AuxMeter from '../../components/scope/AuxMeter.astro';
+import headshot from '../../assets/headshot.jpg';
+import { email, focus, parallelTrack, path, socials, stack } from '../../content/profile';
+
+export const prerender = true;
+
+const index = (n: number) => String(n).padStart(2, '0');
+
+// Chronological, top to bottom like a signal chain. The aux send sits beside
+// the rows it overlapped on wider screens and inline after them on phones.
+const rows = parallelTrack.alongside.map((id) => path.findIndex((s) => s.id === id) + 1);
+const trackRows = `${Math.min(...rows)} / span ${Math.max(...rows) - Math.min(...rows) + 1}`;
+const trackAfter = path[Math.max(...rows) - 1]?.id;
+// The last row has no bottom padding, so a track ending there shouldn't either.
+const trackReachesEnd = Math.max(...rows) === path.length;
+
+const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', 'help'];
+---
+
+<ScopeLayout page='home' status='6 panes'>
+	<div class='grid gap-4 lg:grid-cols-12'>
+		<Pane title='whoami' index='01' class='lg:col-span-5 lg:row-span-2'>
+			<div class='flex items-center gap-3'>
+				<Image
+					src={headshot}
+					alt=''
+					width={112}
+					height={112}
+					densities={[1, 2]}
+					format='webp'
+					loading='eager'
+					class='h-14 w-14 rounded-full object-cover ring-1 ring-border grayscale-[35%]'
+				/>
+				<div>
+					<h1 class='text-2xl tracking-tight text-foreground sm:text-3xl'>david mostoller</h1>
+					<p class='text-[11px] text-muted-foreground'>senior software engineer / network security</p>
+				</div>
+			</div>
+			<div class='scope-prose mt-5 space-y-3 leading-relaxed text-muted-foreground'>
+				<p class='text-foreground/90'>
+					I'm a senior software engineer on Comcast's DDoS Mitigation Services team, building the internal
+					tools, intelligence platforms, and automation that security engineers use to protect one of the
+					largest networks in the U.S.
+				</p>
+				<p>
+					Outside of software, I produce electronic music as <a href='https://kabayun.com'>Kabayun</a> and <a
+						href='https://superluminalpsy.com'>Superluminal</a
+					>, drawing on a background in audio engineering and music technology.
+				</p>
+				<p>When I'm not coding or making music, you'll often find me on my bicycle or lost in a sci-fi novel.</p>
+			</div>
+			<div class='mt-5 space-y-3 border-t border-border pt-4'>
+				<div class='flex items-center justify-between gap-3 rounded bg-muted/70 px-3 py-2'>
+					<span class='min-w-0 truncate'>
+						<span class='text-primary'>$</span>
+						<span class='hidden sm:inline'>mail</span>
+						<a href={`mailto:${email}`} class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'
+							>{email}</a
+						>
+					</span>
+					<button
+						type='button'
+						data-copy={email}
+						class='shrink-0 rounded px-2 py-0.5 text-[11px] text-muted-foreground hover:bg-background hover:text-foreground'
+					>
+						<span data-copy-label>copy</span>
+					</button>
+				</div>
+				<div class='flex flex-wrap gap-x-5 gap-y-1 text-[11px]'>
+					{
+						socials.map((s) => (
+							<a href={s.href} class='text-muted-foreground transition-colors hover:text-primary'>
+								{s.label.toLowerCase()} ↗
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</Pane>
+
+		<Pane title='signal / noise' index='02' class='lg:col-span-7' bodyClass='p-0'>
+			<span slot='aside' class='flex items-center gap-1.5'><i class='inline-block h-px w-3 bg-muted-foreground'></i>ingress</span>
+			<span slot='aside' class='flex items-center gap-1.5'><i class='inline-block h-0.5 w-3 bg-primary'></i>clean</span>
+			<TrafficScope class='h-40 sm:h-52' />
+		</Pane>
+
+		<Pane title='focus' index='03' aside='comcast · 2025 – now' class='lg:col-span-7' bodyClass='px-3 sm:px-4'>
+			<ol class='divide-y divide-border'>
+				{
+					focus.map((item, i) => (
+						<li data-row class='-mx-3 grid grid-cols-[2rem_1fr] gap-3 px-3 py-3.5 sm:-mx-4 sm:px-4'>
+							<span class='pt-0.5 text-[11px] text-muted-foreground'>{index(i + 1)}</span>
+							<div>
+								<h3 class='text-foreground'>{item.title}</h3>
+								<p class='mt-1 leading-relaxed text-muted-foreground'>{item.body}</p>
+							</div>
+						</li>
+					))
+				}
+			</ol>
+		</Pane>
+
+		<Pane title='signal path' index='04' class='lg:col-span-5 lg:row-span-2'>
+			<ol class='grid sm:grid-cols-[1fr_9.5rem] sm:gap-x-3'>
+				{
+					path.map((step, i) => (
+						<>
+							<li
+								class:list={[
+									'relative',
+									parallelTrack.alongside.includes(step.id) ? 'sm:col-start-1' : 'sm:col-span-2',
+									i < path.length - 1 && 'pb-6',
+								]}
+							>
+								<div
+									class:list={[
+										'flex items-baseline gap-3 rounded border px-3 py-2.5',
+										step.current ? 'border-primary/60 bg-primary/5' : 'border-border',
+									]}
+								>
+									<span
+										class:list={[
+											'w-14 shrink-0 text-[10px] uppercase tracking-wider',
+											step.current ? 'text-primary' : 'text-muted-foreground',
+										]}
+									>
+										{step.stage}
+									</span>
+									<div class='min-w-0 flex-1'>
+										<h3 class='leading-snug text-foreground'>{step.title}</h3>
+										{step.detail && <p class='text-[11px] text-muted-foreground'>{step.detail}</p>}
+									</div>
+									{step.when && <span class='hidden shrink-0 text-[10px] text-primary sm:inline'>{step.when}</span>}
+								</div>
+								{i < path.length - 1 && (
+									<span aria-hidden='true' class='absolute bottom-1 left-8 text-[10px] leading-none text-muted-foreground'>
+										↓
+									</span>
+								)}
+							</li>
+							{step.id === trackAfter && (
+								<li
+									class:list={[
+										'pb-6 pl-8 sm:col-start-2 sm:pl-0 sm:[grid-row:var(--rows)]',
+										trackReachesEnd && 'sm:pb-0',
+									]}
+									style={`--rows: ${trackRows}`}
+								>
+									<div class='flex h-full flex-col rounded border border-dashed border-primary/50 px-3 py-2.5'>
+										<p class='text-[10px] uppercase tracking-wider text-primary'>
+											<span class='sm:hidden'>↳ </span>
+											{parallelTrack.stage} send
+										</p>
+										<h3 class='mt-1 leading-snug text-foreground'>{parallelTrack.title}</h3>
+										<p class='text-[11px] text-muted-foreground'>{parallelTrack.detail} · in parallel</p>
+										<AuxMeter class='mt-4 hidden min-h-24 flex-1 sm:flex' />
+									</div>
+								</li>
+							)}
+						</>
+					))
+				}
+			</ol>
+		</Pane>
+
+		<Pane title='stack' index='05' class='lg:col-span-7' bodyClass='px-3 sm:px-4'>
+			<dl class='divide-y divide-border'>
+				{
+					stack.map((group) => (
+						<div class='grid grid-cols-[6rem_1fr] gap-4 py-2.5'>
+							<dt class='pt-0.5 text-[11px] text-muted-foreground'>{group.label.toLowerCase()}</dt>
+							<dd class:list={[group.label === 'Security' ? 'text-foreground' : 'text-muted-foreground']}>
+								{group.items.join(', ')}
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</Pane>
+
+		<Pane title='try' index='06' aside='press : to type' class='lg:col-span-7'>
+			<div class='flex flex-wrap gap-2'>
+				{
+					tryCommands.map((command) => (
+						<button
+							type='button'
+							data-run={command}
+							class='rounded border border-border px-2 py-1 text-[12px] text-muted-foreground transition-colors hover:border-primary hover:text-primary'
+						>
+							<span class='text-primary'>:</span>
+							{command}
+						</button>
+					))
+				}
+			</div>
+			<p class='mt-3 text-[11px] leading-relaxed text-muted-foreground'>
+				j/k to move through rows · / to filter · 1–4 to switch windows · esc twice to go back
+			</p>
+		</Pane>
+	</div>
+</ScopeLayout>
