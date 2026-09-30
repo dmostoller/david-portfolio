@@ -1,0 +1,20 @@
+---
+// Page title for Scope's inner windows: the directory name plus your intro line.
+interface Props {
+	title: string;
+	description: string;
+	meta?: string;
+}
+
+const { title, description, meta } = Astro.props;
+---
+
+<header class='mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-1'>
+	<h1 class='text-2xl sm:text-3xl tracking-tight text-foreground'>
+		{title}<span class='text-primary'>/</span>
+	</h1>
+	<p class='text-[12px] text-muted-foreground'>
+		{description}
+		{meta && <span class='text-foreground/70'> · {meta}</span>}
+	</p>
+</header>

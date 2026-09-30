@@ -1,0 +1,19 @@
+---
+interface Props {
+	label: string;
+	/** Right-aligned mono note in the section header. */
+	aside?: string;
+	/** Drop the top rule for the first section under a page header. */
+	divider?: boolean;
+}
+
+const { label, aside, divider = true } = Astro.props;
+---
+
+<section class:list={[divider && 'pt-8 border-t border-border']}>
+	<div class='flex items-baseline justify-between gap-4 mb-6'>
+		<h2 class='font-mono text-xs uppercase tracking-widest text-muted-foreground'>{label}</h2>
+		{aside && <span class='font-mono text-xs text-muted-foreground text-right'>{aside}</span>}
+	</div>
+	<slot />
+</section>

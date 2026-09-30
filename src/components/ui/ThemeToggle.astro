@@ -1,0 +1,106 @@
+---
+// Flips the .dark class on <html>, remembers the choice, and reveals the new
+// theme in a circle from the button where view transitions are supported.
+// The icon is chosen by CSS from the .dark class, so it's right before any
+// script runs.
+import Icon from './Icon.astro';
+---
+
+<button
+	type='button'
+	data-theme-toggle
+	aria-label='Toggle theme'
+	class='theme-toggle rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground'
+>
+	<span class='theme-toggle-icon block'>
+		<Icon name='moon' size={18} class='theme-icon-moon' />
+		<Icon name='sun' size={18} class='theme-icon-sun' />
+	</span>
+</button>
+
+<style>
+	.theme-toggle {
+		transition-property: color, background-color, transform;
+	}
+	.theme-toggle:active {
+		transform: scale(0.95);
+	}
+	.theme-toggle-icon {
+		transition: transform 300ms ease;
+	}
+	:global(.dark) .theme-toggle-icon {
+		transform: rotate(180deg);
+	}
+	.theme-toggle :global(.theme-icon-sun),
+	:global(.dark) .theme-toggle :global(.theme-icon-moon) {
+		display: none;
+	}
+	:global(.dark) .theme-toggle :global(.theme-icon-sun) {
+		display: block;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.theme-toggle-icon {
+			transition: none;
+		}
+		.theme-toggle:active {
+			transform: none;
+		}
+	}
+</style>
+
+<script>
+	const root = document.documentElement;
+	const isDark = () => root.classList.contains('dark');
+
+	function syncLabel(button: HTMLButtonElement) {
+		button.setAttribute('aria-label', `Switch to ${isDark() ? 'light' : 'dark'} mode`);
+	}
+
+	function applyTheme(dark: boolean) {
+		root.classList.toggle('dark', dark);
+		try {
+			localStorage.setItem('theme', dark ? 'dark' : 'light');
+		} catch {
+			// Storage can be blocked; the theme then lasts for this page only.
+		}
+	}
+
+	for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+		syncLabel(button);
+		button.addEventListener('click', async () => {
+			const next = !isDark();
+			const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+			if (!('startViewTransition' in document) || reducedMotion) {
+				applyTheme(next);
+				syncLabel(button);
+				return;
+			}
+
+			const { top, left, width, height } = button.getBoundingClientRect();
+			const x = left + width / 2;
+			const y = top + height / 2;
+			const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+			// Lets global.css switch off named view transitions so only the reveal animates.
+			root.dataset.themeTransition = '';
+			const transition = document.startViewTransition(() => {
+				applyTheme(next);
+				syncLabel(button);
+			});
+
+			// The browser can skip a transition (for example in a background tab), which
+			// rejects `ready`; the theme still applies, and the flag must still be cleared.
+			transition.ready
+				.then(() =>
+					root.animate(
+						{ clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+						{ duration: 500, easing: 'ease-out', pseudoElement: '::view-transition-new(root)' },
+					),
+				)
+				.catch(() => {});
+			await transition.finished.catch(() => {});
+			delete root.dataset.themeTransition;
+		});
+	}
+</script>

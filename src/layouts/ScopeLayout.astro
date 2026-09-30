@@ -1,0 +1,530 @@
+---
+// Scope: the alternate-universe version of the site, reached through the A/B
+// switch in Signal's footer. Always dark, keyboard-first, full width. Its
+// console behavior lives in src/scripts/scope/console.ts.
+import Analytics from '@vercel/analytics/astro';
+import ABSwitch from '../components/ui/ABSwitch.astro';
+import { commandHelp, keyHelp } from '../lib/scope/commands';
+import { email, parallelTrack, path as career } from '../content/profile';
+import { archivedProjects, getBooks, press, selectedProjects } from '../lib/content';
+import { getMediumPosts } from '../lib/medium';
+import { getSavedArticles } from '../lib/inoreader';
+import { pageMeta, pages, scopeHref, signalHref, type Page } from '../lib/routes';
+import '../styles/global.css';
+
+interface Props {
+	page: Page | 'missing';
+	/** Short readout for the status bar, e.g. "15 procs". */
+	status?: string;
+	/** The requested path, for the 404 window. */
+	missingPath?: string;
+}
+
+const { page, status, missingPath } = Astro.props;
+
+const aliases: Record<Page, string[]> = {
+	home: ['~', '/', '..', 'h'],
+	projects: ['p'],
+	blog: ['writing', 'w'],
+	reading: ['r', 'books'],
+};
+const windows = pages.map((p) => ({
+	id: p.id,
+	name: p.id === 'blog' ? 'writing' : p.id,
+	href: scopeHref(p.id),
+}));
+const current = windows.find((w) => w.id === page);
+const cwd =
+	page === 'missing' ? `~/${missingPath ?? ''}`
+	: page === 'home' ? '~'
+	: `~/${current?.name}`;
+const exitHref = page === 'missing' ? signalHref('home') : signalHref(page);
+// The tab title reads like the prompt, e.g. "dbm:~/projects · david mostoller".
+const title = `dbm:${cwd} · ${page === 'missing' ? 'packet dropped' : 'david mostoller'}`;
+
+// Share cards and descriptions match the Signal page this one mirrors.
+const meta = pageMeta(page === 'missing' ? 'home' : page);
+const ogImageURL = new URL(`/api/og.png?title=${encodeURIComponent(meta.title)}`, Astro.site).toString();
+
+// The boot log reports real counts from the same content the pages render.
+const [posts, articles] = await Promise.all([getMediumPosts(), getSavedArticles()]);
+const books = getBooks().reduce((total, group) => total + group.books.length, 0);
+const ok = (label: string, value: string) => `[ ok ] ${`${label} `.padEnd(24, '.')} ${value}`;
+const boot = [
+	'dbm — david mostoller',
+	'',
+	ok('ps aux', `${selectedProjects.length + archivedProjects.length} projects`),
+	ok('tail writing.log', `${press.length + posts.length} entries`),
+	ok('reading queue', `${books} books · ${articles.length} saved`),
+	ok('signal path', `${career.length} stages`),
+	ok('aux send', parallelTrack.title.toLowerCase()),
+	'',
+	'ready. press ? for help',
+];
+
+const data = {
+	cwd,
+	exit: exitHref,
+	email,
+	whoami: [
+		'david mostoller',
+		'senior software engineer, network security — comcast, philadelphia',
+		'also: audio engineering, music technology (kabayun · superluminal)',
+		`mail: ${email}`,
+	],
+	routes: windows.map((w) => ({ name: w.name, aliases: aliases[w.id], href: w.href })),
+	boot,
+};
+// Escape "<" so nothing in the data can close the script tag early.
+const dataJson = JSON.stringify(data).replace(/</g, '\\u003c');
+const canonical = new URL(exitHref, Astro.site);
+---
+
+<!doctype html>
+<html lang='en' class='dark scope' data-accent='teal'>
+	<head>
+		<meta charset='UTF-8' />
+		<meta name='viewport' content='width=device-width, initial-scale=1' />
+		<meta name='theme-color' content='#0d1214' />
+		<!-- Search engines should treat the Signal page as the real one. -->
+		{page === 'missing' ? <meta name='robots' content='noindex' /> : <link rel='canonical' href={canonical} />}
+		<link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+		<link rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png' />
+		<link rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png' />
+		<title>{title}</title>
+		<meta name='description' content={meta.description} />
+		<meta property='og:title' content={meta.title} />
+		<meta property='og:description' content={meta.description} />
+		<meta property='og:image' content={ogImageURL} />
+		<meta property='og:url' content={canonical} />
+		<meta property='og:type' content='website' />
+		<meta name='twitter:card' content='summary_large_image' />
+		<meta name='twitter:title' content={meta.title} />
+		<meta name='twitter:description' content={meta.description} />
+		<meta name='twitter:image' content={ogImageURL} />
+		<link rel='preconnect' href='https://fonts.googleapis.com' />
+		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+		<link href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap' rel='stylesheet' />
+		<script is:inline>
+			try {
+				const accent = localStorage.getItem('scope-accent');
+				if (accent) document.documentElement.dataset.accent = accent;
+			} catch {}
+		</script>
+	</head>
+	<body class='min-h-screen bg-background font-mono text-[13px] text-foreground'>
+		<a
+			href='#main'
+			class='sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[70] focus:rounded focus:bg-primary focus:px-3 focus:py-1.5 focus:text-background'
+		>
+			skip to content
+		</a>
+
+		<div aria-hidden='true' class='scope-grid pointer-events-none fixed inset-0 -z-10'></div>
+		<div aria-hidden='true' class='scope-vignette pointer-events-none fixed inset-0 z-20'></div>
+		<div aria-hidden='true' class='scope-scanlines pointer-events-none fixed inset-0 z-50'></div>
+
+		<header class='sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur'>
+			<div class='mx-auto flex h-11 max-w-[1400px] items-center gap-3 px-4 text-[12px] sm:px-6'>
+				<span class='hidden shrink-0 text-muted-foreground md:inline'>
+					<span class='text-primary'>dbm</span>:{cwd}
+				</span>
+				<nav aria-label='Windows' class='flex min-w-0 items-center gap-0.5 overflow-x-auto'>
+					{
+						windows.map((w, i) => (
+							<a
+								href={w.href}
+								aria-current={w.id === page ? 'page' : undefined}
+								class:list={[
+									'shrink-0 rounded px-2 py-1 transition-colors',
+									w.id === page ?
+										'bg-primary text-background'
+									:	'text-muted-foreground hover:bg-muted hover:text-foreground',
+								]}
+							>
+								<span class='opacity-60'>{i + 1}:</span>
+								{w.name}
+								{w.id === page && '*'}
+							</a>
+						))
+					}
+				</nav>
+				<div class='ml-auto flex shrink-0 items-center gap-1'>
+					<button
+						type='button'
+						data-sound-toggle
+						aria-pressed='false'
+						class='rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+					>
+						♪ <span data-sound-label>off</span>
+					</button>
+					<button
+						type='button'
+						data-help-open
+						aria-label='Help'
+						class='rounded px-2 py-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground'
+					>
+						?
+					</button>
+				</div>
+			</div>
+		</header>
+
+		<main id='main' class='mx-auto max-w-[1400px] px-4 pt-6 pb-24 sm:px-6'>
+			<slot />
+			<p class='mt-10 text-[11px] text-muted-foreground'>
+				© 2026 david mostoller · built with astro · press <kbd class='text-foreground'>?</kbd> for help
+			</p>
+		</main>
+
+		<section
+			id='scope-output'
+			hidden
+			aria-label='Console output'
+			class='pointer-events-none fixed inset-x-0 bottom-9 z-30'
+		>
+			<div class='mx-auto max-w-[1400px] px-4 sm:px-6'>
+				<div
+					class='pointer-events-auto w-full rounded-t-md border border-b-0 border-border bg-card/95 shadow-lg backdrop-blur sm:w-[36rem]'
+				>
+					<div
+						class='flex h-7 items-center justify-between border-b border-border px-3 text-[10px] text-muted-foreground'
+					>
+						<span>output</span>
+						<button type='button' data-output-close class='hover:text-foreground'>esc ✕</button>
+					</div>
+					<div
+						data-output-lines
+						aria-live='polite'
+						class='max-h-56 overflow-y-auto px-3 py-2 text-[12px] leading-relaxed'
+					>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<footer class='fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 backdrop-blur'>
+			<div class='relative mx-auto flex h-9 max-w-[1400px] items-center gap-3 px-4 text-[11px] sm:px-6'>
+				<span data-mode class='shrink-0 rounded-sm bg-primary px-1.5 py-0.5 font-medium text-background'>NORMAL</span>
+				<span data-status-path class='min-w-0 flex-1 truncate text-muted-foreground'>
+					{cwd}{status && ` · ${status}`}
+				</span>
+				<form data-prompt hidden class='flex min-w-0 flex-1 items-center gap-1'>
+					<span data-prompt-sigil class='text-primary'>:</span>
+					<input
+						data-prompt-input
+						type='text'
+						autocomplete='off'
+						autocapitalize='off'
+						spellcheck='false'
+						enterkeyhint='go'
+						aria-label='Command'
+						class='min-w-0 flex-1 bg-transparent text-foreground outline-none'
+					/>
+				</form>
+				<span class='hidden text-muted-foreground xl:inline'>j/k move · ↵ open · / filter · : command · ? help</span>
+				<span class='hidden items-center gap-1.5 text-muted-foreground sm:flex' aria-hidden='true'>
+					aux
+					<span class='relative h-1.5 w-14'>
+						<span class='meter-h meter-unlit absolute inset-0'></span>
+						<span class='meter-h meter-lit absolute inset-0' data-meter-channel></span>
+					</span>
+				</span>
+				<time data-clock class='hidden tabular-nums text-muted-foreground sm:inline'>--:--</time>
+				<button
+					type='button'
+					data-prompt-open
+					aria-label='Open the command line'
+					class='rounded px-1.5 py-0.5 text-primary hover:bg-muted xl:hidden'
+				>
+					:_
+				</button>
+				<ABSwitch state='b' href={exitHref} label='A/B: back to the main version of this site' />
+				<ul
+					data-suggestions
+					hidden
+					class='absolute bottom-full left-4 right-4 mb-1 rounded-md border border-border bg-card/95 py-1 text-[12px] shadow-lg backdrop-blur sm:right-auto sm:w-96'
+				>
+				</ul>
+			</div>
+		</footer>
+
+		<div
+			id='scope-help'
+			hidden
+			data-help-backdrop
+			class='fixed inset-0 z-[55] grid place-items-center bg-background/70 p-4 backdrop-blur-sm'
+		>
+			<div
+				role='dialog'
+				aria-modal='true'
+				aria-labelledby='scope-help-title'
+				class='w-full max-w-2xl rounded-md border border-border bg-card shadow-2xl'
+			>
+				<div
+					class='flex h-9 items-center justify-between border-b border-border px-4 text-[11px] text-muted-foreground'
+				>
+					<h2 id='scope-help-title'><span class='text-primary'>?</span> help</h2>
+					<button type='button' data-help-close class='hover:text-foreground'>esc ✕</button>
+				</div>
+				<div class='grid gap-6 p-4 text-[12px] sm:grid-cols-2'>
+					<section>
+						<h3 class='mb-2 text-[10px] uppercase tracking-wider text-muted-foreground'>keys</h3>
+						<dl class='space-y-1.5'>
+							{
+								keyHelp.map((k) => (
+									<div class='flex gap-3'>
+										<dt class='w-32 shrink-0 text-primary'>{k.keys}</dt>
+										<dd class='text-muted-foreground'>{k.summary}</dd>
+									</div>
+								))
+							}
+						</dl>
+					</section>
+					<section>
+						<h3 class='mb-2 text-[10px] uppercase tracking-wider text-muted-foreground'>commands</h3>
+						<dl class='space-y-1.5'>
+							{
+								commandHelp.map((c) => (
+									<div class='flex gap-3'>
+										<dt class='w-16 shrink-0 text-foreground'>{c.name}</dt>
+										<dd class='text-muted-foreground'>{c.summary}</dd>
+									</div>
+								))
+							}
+						</dl>
+					</section>
+				</div>
+				<p class='border-t border-border px-4 py-2.5 text-[11px] text-muted-foreground'>
+					Flip the A/B switch, type <span class='text-foreground'>exit</span>, or press esc twice to go back to the main
+					site.
+				</p>
+			</div>
+		</div>
+
+		<div
+			id='scope-boot'
+			hidden
+			aria-hidden='true'
+			class='fixed inset-0 z-[60] bg-background transition-opacity duration-300'
+		>
+			<canvas data-boot-static class='absolute inset-0 h-full w-full [image-rendering:pixelated]'></canvas>
+			<div class='relative mx-auto max-w-[1400px] px-4 pt-16 sm:px-6'>
+				<pre data-boot-lines class='text-[12px] leading-relaxed text-foreground'></pre>
+				<p data-boot-skip class='mt-6 text-[11px] text-muted-foreground'>press any key to skip</p>
+			</div>
+		</div>
+
+		<div
+			data-toast
+			hidden
+			role='status'
+			class='fixed bottom-12 left-1/2 z-40 -translate-x-1/2 rounded-md border border-border bg-card px-3 py-1.5 text-[11px] text-muted-foreground shadow-lg'
+		>
+		</div>
+
+		<Analytics />
+		<script is:inline type='application/json' id='scope-data' set:html={dataJson} />
+		<script>
+			import '../scripts/scope/console';
+		</script>
+	</body>
+</html>
+
+<style is:global>
+	html.scope {
+		--background: oklch(0.165 0.006 205);
+		--foreground: oklch(0.93 0.012 180);
+		--card: oklch(0.19 0.008 205);
+		--card-foreground: var(--foreground);
+		--muted: oklch(0.235 0.01 205);
+		--muted-foreground: oklch(0.7 0.014 190);
+		--border: oklch(0.31 0.014 200);
+		--primary: oklch(0.8 0.14 173.8);
+		--primary-foreground: oklch(0.165 0.006 205);
+		color-scheme: dark;
+	}
+	html.scope[data-accent='amber'] {
+		--primary: oklch(0.82 0.15 75);
+	}
+	html.scope[data-accent='green'] {
+		--primary: oklch(0.84 0.19 145);
+	}
+	html.scope[data-accent='mono'] {
+		--primary: oklch(0.93 0 0);
+	}
+	html.scope ::selection {
+		background: color-mix(in oklch, var(--primary) 30%, transparent);
+		color: var(--foreground);
+	}
+	/* Cross-document transitions between Scope windows, where supported. */
+	@view-transition {
+		navigation: auto;
+	}
+
+	html.scope .scope-grid {
+		--grid-line: color-mix(in oklch, var(--primary) 7%, transparent);
+		background-image:
+			linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+			linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+		background-size: 40px 40px;
+		mask-image: radial-gradient(ellipse 100% 70% at 50% 0%, black 0%, transparent 85%);
+	}
+	html.scope .scope-vignette {
+		background: radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.35) 100%);
+	}
+	html.scope .scope-scanlines {
+		background: repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.16) 2px 3px);
+		opacity: 0.4;
+	}
+
+	html.scope [data-row] {
+		scroll-margin: 3.5rem 0 4rem;
+		transition: background-color 120ms;
+	}
+	html.scope [data-row][data-selected] {
+		background: color-mix(in oklch, var(--primary) 9%, transparent);
+		box-shadow: inset 2px 0 0 var(--primary);
+	}
+	html.scope tr[data-row][data-selected] > td:first-child {
+		box-shadow: inset 2px 0 0 var(--primary);
+	}
+	html.scope .scope-prose a {
+		color: var(--foreground);
+		text-decoration: underline;
+		text-decoration-color: color-mix(in oklch, var(--primary) 50%, transparent);
+		text-underline-offset: 3px;
+	}
+	html.scope .scope-prose a:hover {
+		text-decoration-color: var(--primary);
+	}
+
+	/* Level meters: segments come from a mask, level from --level or the idle animation. */
+	html.scope .meter {
+		border-radius: 1px;
+		mask-image: repeating-linear-gradient(to top, black 0 4px, transparent 4px 6px);
+	}
+	html.scope .meter-h {
+		border-radius: 1px;
+		mask-image: repeating-linear-gradient(to right, black 0 3px, transparent 3px 5px);
+	}
+	html.scope .meter-unlit {
+		background: color-mix(in oklch, var(--muted-foreground) 20%, transparent);
+	}
+	html.scope .meter.meter-lit {
+		background: linear-gradient(
+			to top,
+			var(--primary) 0%,
+			var(--primary) 70%,
+			color-mix(in oklab, var(--primary) 40%, var(--foreground)) 86%,
+			var(--foreground) 100%
+		);
+		clip-path: inset(calc(100% - var(--level, 55%)) 0 0 0);
+		animation: meter-idle var(--meter-duration, 2.8s) ease-in-out var(--meter-delay, 0s) infinite;
+	}
+	html.scope .meter-h.meter-lit {
+		background: linear-gradient(to right, var(--primary) 0%, var(--primary) 75%, var(--foreground) 100%);
+		clip-path: inset(0 calc(100% - var(--level, 45%)) 0 0);
+	}
+	html.scope[data-meters-live] .meter-lit {
+		animation: none;
+	}
+	/* Peak ticks hold at the highest recent level, then fall. Only meters.ts moves them. */
+	html.scope .meter-peak {
+		position: absolute;
+		inset-inline: 0;
+		bottom: calc(var(--peak, 0%) - 2px);
+		height: 2px;
+		border-radius: 1px;
+		background: var(--foreground);
+		opacity: 0.85;
+	}
+	html.scope .meter-peak[data-hot] {
+		background: var(--destructive);
+	}
+	html.scope:not([data-meters-live]) .meter-peak {
+		display: none;
+	}
+	html.scope .clip-led {
+		background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+		transition:
+			background-color 100ms,
+			box-shadow 100ms;
+	}
+	html.scope .clip-light[data-lit] {
+		color: var(--destructive);
+	}
+	html.scope .clip-light[data-lit] .clip-led {
+		background: var(--destructive);
+		box-shadow: 0 0 6px var(--destructive);
+	}
+	@keyframes meter-idle {
+		0% {
+			clip-path: inset(52% 0 0 0);
+		}
+		15% {
+			clip-path: inset(34% 0 0 0);
+		}
+		30% {
+			clip-path: inset(46% 0 0 0);
+		}
+		45% {
+			clip-path: inset(16% 0 0 0);
+		}
+		60% {
+			clip-path: inset(40% 0 0 0);
+		}
+		75% {
+			clip-path: inset(30% 0 0 0);
+		}
+		100% {
+			clip-path: inset(52% 0 0 0);
+		}
+	}
+
+	html.scope .cursor-blink {
+		animation: cursor-blink 1s steps(1) infinite;
+	}
+	@keyframes cursor-blink {
+		50% {
+			opacity: 0;
+		}
+	}
+
+	/* Reading queue bars: striped while in progress, full when done, empty when queued. */
+	html.scope .queue-bar {
+		height: 0.375rem;
+		border-radius: 1px;
+		border: 1px solid var(--border);
+	}
+	html.scope .queue-bar[data-state='done'] {
+		background: color-mix(in oklch, var(--primary) 55%, transparent);
+		border-color: transparent;
+	}
+	html.scope .queue-bar[data-state='reading'] {
+		border-color: color-mix(in oklch, var(--primary) 60%, transparent);
+		background: repeating-linear-gradient(
+			-45deg,
+			color-mix(in oklch, var(--primary) 55%, transparent) 0 4px,
+			transparent 4px 8px
+		);
+		background-size: 11.3px 11.3px;
+		animation: queue-progress 1.2s linear infinite;
+	}
+	@keyframes queue-progress {
+		to {
+			background-position: 11.3px 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html.scope .meter-lit,
+		html.scope .cursor-blink,
+		html.scope .queue-bar {
+			animation: none;
+		}
+		@view-transition {
+			navigation: none;
+		}
+	}
+</style>

@@ -1,9 +1,11 @@
-interface MediumPost {
+import { cached, FEED_TIMEOUT } from "./cache";
+import { decodeEntities, toText, truncate } from "./format";
+
+export interface MediumPost {
   title: string;
-  link: string;
-  pubDate: string;
-  description?: string;
-  thumbnail?: string;
+  href: string;
+  date: string;
+  excerpt: string;
 }
 
 interface MediumApiItem {
@@ -11,41 +13,35 @@ interface MediumApiItem {
   link: string;
   pubDate: string;
   description?: string;
-  thumbnail?: string;
 }
 
-export async function getMediumPosts(username: string): Promise<MediumPost[]> {
+async function fetchMediumPosts(username: string): Promise<MediumPost[]> {
   try {
     const response = await fetch(
       `https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${username}`,
+      { signal: AbortSignal.timeout(FEED_TIMEOUT) },
     );
-
     if (!response.ok) return [];
-
     const data = await response.json();
-
-    if (data.status !== "ok") {
-      return [];
-    }
+    if (data.status !== "ok") return [];
 
     return data.items.map((item: MediumApiItem) => {
-      const plainDescription =
-        typeof item.description === "string"
-          ? item.description.replace(/<[^>]*>/g, "")
-          : undefined;
-      const description =
-        plainDescription && plainDescription.length > 160
-          ? plainDescription.slice(0, 160) + "..."
-          : plainDescription;
+      // Medium puts a figure (sometimes with a caption) before the first paragraph.
+      const firstParagraph =
+        /<p>([\s\S]*?)<\/p>/.exec(item.description ?? "")?.[1] ?? "";
       return {
-        title: item.title,
-        link: item.link,
-        pubDate: item.pubDate,
-        description,
-        thumbnail: item.thumbnail,
+        title: decodeEntities(item.title),
+        href: item.link.split("?")[0],
+        date: item.pubDate,
+        excerpt: truncate(toText(firstParagraph), 170),
       };
     });
   } catch {
     return [];
   }
 }
+
+export const getMediumPosts = cached(
+  () => fetchMediumPosts("dmostoller"),
+  10 * 60_000,
+);

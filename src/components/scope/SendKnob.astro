@@ -1,0 +1,109 @@
+---
+// The aux send knob. Drag it, scroll it, or use the arrow keys (double-click
+// resets it); it scales the meters, and it goes to eleven. Behavior lives in
+// scripts/scope/knob.ts.
+interface Props {
+	/** Include a display utility (e.g. "flex" or "hidden sm:flex"); the knob sets none itself. */
+	class?: string;
+}
+
+const { class: className = 'flex' } = Astro.props;
+const initial = 5;
+const max = 11;
+// 0–10 sweep 270°, and 11 sits one notch past 10.
+const angle = (v: number) => ((-135 + v * 27) * Math.PI) / 180;
+const ticks = Array.from({ length: max + 1 }, (_, v) => ({
+	v,
+	x1: (Math.sin(angle(v)) * 18.5).toFixed(2),
+	y1: (-Math.cos(angle(v)) * 18.5).toFixed(2),
+	x2: (Math.sin(angle(v)) * 22).toFixed(2),
+	y2: (-Math.cos(angle(v)) * 22).toFixed(2),
+}));
+---
+
+<div class:list={['items-center gap-2.5', className]}>
+	<div
+		data-knob
+		role='slider'
+		tabindex='0'
+		aria-label='Aux send level'
+		aria-valuemin='0'
+		aria-valuemax={max}
+		aria-valuenow={initial}
+		style={`--value: ${initial}`}
+		class='knob h-12 w-12 shrink-0 cursor-ns-resize touch-none rounded-full'
+	>
+		<svg viewBox='-24 -24 48 48' class='h-full w-full' aria-hidden='true'>
+			{
+				ticks.map((t) => (
+					<line
+						x1={t.x1}
+						y1={t.y1}
+						x2={t.x2}
+						y2={t.y2}
+						data-tick={t.v}
+						data-on={t.v <= initial ? '' : undefined}
+						class:list={['tick', t.v === max && 'tick-eleven']}
+					/>
+				))
+			}
+			<g class='knob-cap'>
+				<circle r='14' class='knob-body'></circle>
+				<line x1='0' y1='-5' x2='0' y2='-12' class='knob-pointer'></line>
+			</g>
+		</svg>
+	</div>
+	<div class='text-[10px] leading-tight'>
+		<p class='uppercase tracking-wider text-muted-foreground'>send</p>
+		<p data-knob-readout class='knob-readout text-[13px] tabular-nums text-foreground'>{initial}</p>
+	</div>
+</div>
+
+<style>
+	.knob:focus-visible {
+		outline: 2px solid var(--primary);
+		outline-offset: 2px;
+	}
+	.knob-body {
+		fill: var(--muted);
+		stroke: var(--border);
+	}
+	.knob-pointer {
+		stroke: var(--foreground);
+		stroke-width: 2;
+		stroke-linecap: round;
+	}
+	.knob-cap {
+		transform-box: fill-box;
+		transform-origin: center;
+		rotate: calc(-135deg + var(--value) * 27deg);
+		transition: rotate 90ms var(--ease-out);
+	}
+	.tick {
+		stroke: color-mix(in oklch, var(--muted-foreground) 35%, transparent);
+		stroke-width: 1.5;
+		stroke-linecap: round;
+		transition: stroke 100ms;
+	}
+	.tick[data-on] {
+		stroke: var(--primary);
+	}
+	.tick-eleven {
+		stroke: color-mix(in oklch, var(--destructive) 45%, transparent);
+	}
+	.knob[data-eleven] .tick-eleven {
+		stroke: var(--destructive);
+		filter: drop-shadow(0 0 2px var(--destructive));
+	}
+	.knob[data-eleven] .knob-pointer {
+		stroke: var(--destructive);
+	}
+	.knob[data-eleven] + div .knob-readout {
+		color: var(--destructive);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.knob-cap {
+			transition: none;
+		}
+	}
+</style>
