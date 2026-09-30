@@ -15,11 +15,11 @@ Astro.response.headers.set('Cache-Control', feedCacheControl(posts.length > 0));
 ---
 
 <BaseLayout page='blog'>
-	<div class='space-y-14'>
+	<div class='rise space-y-14'>
 		<PageHeader title='Writing' description={pageMeta('blog').description} />
 
 		<Section label='Published' divider={false}>
-			<ul class='space-y-6'>
+			<ul class='reveal space-y-6'>
 				{
 					press.map((a) => (
 						<li>
@@ -40,7 +40,7 @@ Astro.response.headers.set('Cache-Control', feedCacheControl(posts.length > 0));
 			{
 				posts.length === 0 ?
 					<p class='py-4 text-sm text-muted-foreground'>Posts couldn't be loaded right now.</p>
-				:	<ul class='space-y-7'>
+				:	<ul class='reveal space-y-7'>
 						{posts.map((post) => (
 							<li>
 								<a href={post.href} class='group grid sm:grid-cols-[1fr_auto] gap-x-6 gap-y-1'>
@@ -58,8 +58,8 @@ Astro.response.headers.set('Cache-Control', feedCacheControl(posts.length > 0));
 					</ul>
 			}
 			<p class='mt-8 text-sm'>
-				<a href='https://medium.com/@dmostoller' class='text-muted-foreground hover:text-primary transition-colors'>
-					All posts on Medium ↗
+				<a href='https://medium.com/@dmostoller' class='group text-muted-foreground hover:text-primary transition-colors'>
+					All posts on Medium <span class='arrow'>↗</span>
 				</a>
 			</p>
 		</Section>

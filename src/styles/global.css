@@ -108,36 +108,15 @@
 
   /* Custom max-width for content */
   --width-content: 680px;
-
-  /* Custom animations */
-  --animate-fade-in: fade-in 0.5s ease-out;
-  --animate-slide-up: slide-up 0.5s ease-out;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @layer base {
   html {
     @apply antialiased;
     color-scheme: light;
+    /* Always reserve room for the scrollbar, so pages that scroll and pages
+       that don't line up the same and nothing shifts when you navigate. */
+    scrollbar-gutter: stable;
   }
 
   /* Native scrollbars and form controls follow the theme. */
@@ -249,9 +228,10 @@
   isolation: auto;
 }
 
-/* During theme transitions, disable view-transition-name on all children
-   so only the root circular reveal animates, not Astro's page transitions */
-html[data-theme-transition] * {
+/* Theme changes (the circular reveal) and crossings to the other design (the
+   static) are their own effect, so page elements sit those transitions out. */
+html[data-theme-transition] *,
+html:has(canvas[data-crossing]) * {
   view-transition-name: none !important;
 }
 

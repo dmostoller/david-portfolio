@@ -60,10 +60,13 @@ This is an Astro 5 portfolio site with hybrid rendering deployed on Vercel.
 - Dark mode via `.dark` class on html element (toggled by ThemeToggle, which picks its icon with CSS so it's correct before scripts run)
 - Uses shadcn/ui-style semantic color tokens: `background`, `foreground`, `primary`, `muted`, `border`, etc.
 - Animations are CSS only (with `prefers-reduced-motion` fallbacks). Don't render content hidden until JavaScript runs.
+- Signal's motion classes live in BaseLayout: `rise` on a page's wrapper (its blocks rise in one after another), `reveal` on a list (items fade up as they scroll in, where scroll-driven animations are supported; `[--reveal-shift:0px]` for a fade only), `press` on buttons, `live-dot` on "now" markers, and `arrow` on a `↗` inside a `group` link.
+- `html` has `scrollbar-gutter: stable`, so pages line up the same whether or not they scroll.
 - Format dates with `formatDate()` from `src/lib/format.ts`, which uses UTC so server and browser agree.
 
 ### Key Patterns
 
 - Everything is plain Astro with no hydrated islands. Don't add React or another framework; add icons by copying Lucide shapes into `src/components/ui/icons.ts`.
-- Cross-document view transitions via `@view-transition { navigation: auto; }` in each layout; there's no `<ClientRouter />`.
+- Cross-document view transitions via `@view-transition { navigation: auto; }` in each layout; there's no `<ClientRouter />`. In Signal the header stays put, the nav underline slides, and `main` (`page`) fades out while the new page rises in. Theme changes and crossings drop all transition names (global.css).
+- The radar sweep is lined up with the clock (Radar.astro) so it doesn't restart on each page load.
 - Security headers configured in vercel.json including CSP

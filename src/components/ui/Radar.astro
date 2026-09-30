@@ -1,5 +1,7 @@
 ---
 const rings = [110, 190, 270, 350];
+// One full sweep, in milliseconds.
+const period = 12_000;
 ---
 
 <div
@@ -16,9 +18,19 @@ const rings = [110, 190, 270, 350];
 				))
 			}
 		</svg>
-		<div class='radar-sweep absolute inset-0 rounded-full'></div>
+		<div class='radar-sweep absolute inset-0 rounded-full' style={`--radar-period: ${period}ms`}></div>
 	</div>
 </div>
+
+<!--
+	Lines the sweep up with the clock, so it carries on from page to page instead
+	of restarting. Setting the start time (rather than a delay) keeps it in step
+	even when the page loads in a background tab and the animation starts late.
+-->
+<script is:inline define:vars={{ period }}>
+	const [sweep] = document.querySelector('.radar-sweep')?.getAnimations() ?? [];
+	if (sweep) sweep.startTime = -(performance.timeOrigin % period);
+</script>
 
 <style>
 	.radar-sweep {
@@ -28,7 +40,7 @@ const rings = [110, 190, 270, 350];
 			color-mix(in oklch, var(--primary) 20%, transparent) 360deg
 		);
 		mask-image: radial-gradient(closest-side, black 55%, transparent 100%);
-		animation: radar-sweep 12s linear infinite;
+		animation: radar-sweep var(--radar-period) linear infinite;
 	}
 	@keyframes radar-sweep {
 		to {

@@ -7,15 +7,15 @@ import { pageMeta } from '../lib/routes';
 
 export const prerender = true;
 
-const linkClass = 'hover:text-foreground transition-colors';
+const linkClass = 'group hover:text-foreground transition-colors';
 ---
 
 <BaseLayout page='projects'>
-	<div class='space-y-14'>
+	<div class='rise space-y-14'>
 		<PageHeader title='Projects' description={pageMeta('projects').description} />
 
 		<Section label='Selected' divider={false}>
-			<ul class='space-y-8'>
+			<ul class='reveal space-y-8'>
 				{
 					selectedProjects.map((p) => (
 						<li>
@@ -28,12 +28,12 @@ const linkClass = 'hover:text-foreground transition-colors';
 								<span class='flex shrink-0 gap-3 font-mono text-xs text-muted-foreground'>
 									{p.live && (
 										<a href={p.live} class={linkClass}>
-											Live ↗
+											Live <span class='arrow'>↗</span>
 										</a>
 									)}
 									{p.github && (
 										<a href={p.github} class={linkClass}>
-											Source ↗
+											Source <span class='arrow'>↗</span>
 										</a>
 									)}
 								</span>
@@ -47,7 +47,7 @@ const linkClass = 'hover:text-foreground transition-colors';
 		</Section>
 
 		<Section label='Archive' aside={`${archivedProjects.length} older projects`}>
-			<ul class='divide-y divide-border border-y border-border'>
+			<ul class='reveal divide-y divide-border border-y border-border'>
 				{
 					archivedProjects.map((p) => (
 						<li class='flex items-baseline justify-between gap-4 py-2.5 text-sm'>

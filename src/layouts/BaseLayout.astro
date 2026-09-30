@@ -83,7 +83,7 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 			<div class='flex items-center justify-between gap-2'>
 				<Wordmark
 					{...wordmarkProps}
-					class:list={['shrink-0 py-2 text-sm font-semibold tracking-tight text-foreground', onHome && 'invisible']}
+					class:list={['wordmark shrink-0 py-2 text-sm font-semibold tracking-tight text-foreground', onHome && 'invisible']}
 				>
 					<span class='sm:hidden'>DM</span>
 					<span class='hidden sm:inline'>David Mostoller</span>
@@ -98,7 +98,7 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 										href={signalHref(item.id)}
 										aria-current={active ? 'page' : undefined}
 										class:list={[
-											'relative px-2 sm:px-3 py-2 text-sm transition-colors',
+											'press relative px-2 sm:px-3 py-2 text-sm transition-colors',
 											active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
 										]}
 									>
@@ -158,13 +158,134 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 </html>
 
 <style is:global>
-	/* Cross-document transitions between Signal pages, where supported. */
+	/* Page to page (where supported): the header and footer stay put, the nav
+	   underline slides over, the old page's content fades out, and the new
+	   page's content rises in (.rise). */
 	@view-transition {
 		navigation: auto;
+	}
+	#main-content {
+		view-transition-name: page;
 	}
 	.nav-indicator {
 		view-transition-name: nav-indicator;
 	}
+	.wordmark {
+		view-transition-name: wordmark;
+	}
+	::view-transition-group(nav-indicator) {
+		animation-duration: 400ms;
+		animation-timing-function: var(--ease-out);
+	}
+	/* The content fades out where it is instead of sliding from the old page's
+	   position to the new one's. */
+	::view-transition-group(page) {
+		animation: none;
+	}
+	::view-transition-old(page) {
+		animation: page-out 150ms ease-out both;
+		mix-blend-mode: normal;
+	}
+	::view-transition-new(page) {
+		animation: none;
+		mix-blend-mode: normal;
+	}
+	@keyframes page-out {
+		to {
+			opacity: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		/* A page's blocks rise in one after another. */
+		.rise > * {
+			animation: rise 700ms var(--ease-out) backwards;
+		}
+		.rise > :nth-child(2) {
+			animation-delay: 60ms;
+		}
+		.rise > :nth-child(3) {
+			animation-delay: 120ms;
+		}
+		.rise > :nth-child(4) {
+			animation-delay: 180ms;
+		}
+		.rise > :nth-child(n + 5) {
+			animation-delay: 240ms;
+		}
+
+		/* Buttons press in slightly. This sits outside Tailwind's layers so it
+		   adds scale to the transition-colors property list instead of losing to it. */
+		.press {
+			transition-property: color, background-color, border-color, opacity, scale;
+			transition-duration: 150ms;
+			transition-timing-function: var(--ease-out);
+		}
+		.press:active {
+			scale: 0.97;
+		}
+
+		/* "Now" markers ping, like the radar. */
+		.live-dot::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: 9999px;
+			background: var(--primary);
+			animation: live-ping 3s var(--ease-out) infinite;
+		}
+
+		/* External-link arrows lean out on hover. */
+		.arrow {
+			display: inline-block;
+			transition: translate 150ms var(--ease-out);
+		}
+		.group:focus-visible .arrow {
+			translate: 2px -2px;
+		}
+		@media (hover: hover) {
+			.group:hover .arrow {
+				translate: 2px -2px;
+			}
+		}
+	}
+
+	/* List items fade up as they scroll into view. Browsers without scroll-driven
+	   animations just show them. Set --reveal-shift: 0px for a fade only. */
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.reveal > * {
+				animation: reveal linear backwards;
+				animation-timeline: view();
+				animation-range: entry 0% entry 100%;
+			}
+		}
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			translate: 0 10px;
+		}
+	}
+	@keyframes reveal {
+		from {
+			opacity: 0;
+			translate: 0 var(--reveal-shift, 12px);
+		}
+	}
+	@keyframes live-ping {
+		from {
+			opacity: 0.45;
+			scale: 1;
+		}
+		60%,
+		to {
+			opacity: 0;
+			scale: 3;
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		@view-transition {
 			navigation: none;

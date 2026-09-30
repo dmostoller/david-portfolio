@@ -19,7 +19,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 ---
 
 <BaseLayout page='home'>
-	<article class='space-y-14'>
+	<article class='rise space-y-14'>
 		<header>
 			<div class='flex flex-col sm:flex-row sm:items-center gap-5'>
 				<Image
@@ -55,7 +55,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 		</section>
 
 		<Section label='What I do' aside='Comcast · 2025 – now'>
-			<ul class='space-y-6'>
+			<ul class='reveal space-y-6'>
 				{
 					focus.map((item) => (
 						<li class='grid sm:grid-cols-[11rem_1fr] gap-1 sm:gap-6'>
@@ -68,7 +68,8 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 		</Section>
 
 		<Section label='Path'>
-			<ol class='grid sm:grid-cols-[1fr_11rem] sm:gap-x-6 ml-1'>
+			<!-- A fade only, so the line through the steps never breaks. -->
+			<ol class='reveal [--reveal-shift:0px] grid sm:grid-cols-[1fr_11rem] sm:gap-x-6 ml-1'>
 				{
 					timeline.map((step, i) => (
 						<>
@@ -83,7 +84,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 									class:list={[
 										'absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full',
 										step.current ?
-											'bg-primary ring-4 ring-primary/15'
+											'live-dot bg-primary ring-4 ring-primary/15'
 										:	'bg-background border border-muted-foreground/60',
 									]}
 								/>
@@ -115,7 +116,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 		</Section>
 
 		<Section label='Stack'>
-			<dl class='space-y-3'>
+			<dl class='reveal space-y-3'>
 				{
 					stack.map((group) => (
 						<div class='grid grid-cols-[6.5rem_1fr] gap-4 text-sm'>
@@ -133,7 +134,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 			<div class='flex flex-wrap items-center gap-3'>
 				<a
 					href={`mailto:${email}`}
-					class='inline-flex items-center gap-2 rounded-md bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity'
+					class='press inline-flex items-center gap-2 rounded-md bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity'
 				>
 					<Icon name='mail' size={16} />
 					Get in touch
@@ -141,7 +142,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 				<button
 					type='button'
 					data-copy={email}
-					class='inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
+					class='press inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
 				>
 					<Icon name='copy' size={14} />
 					<span data-copy-label>{email}</span>
@@ -152,7 +153,7 @@ const trackReachesEnd = Math.max(...rows) === timeline.length;
 							<a
 								href={s.href}
 								aria-label={s.label}
-								class='p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
+								class='press p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
 							>
 								<Icon name={s.icon} size={18} />
 							</a>

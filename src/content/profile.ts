@@ -78,7 +78,7 @@ export const stack = [
       "LLM Agents",
     ],
   },
-  { label: "Languages", items: ["Python", "TypeScript", "JavaScript"] },
+  { label: "Languages", items: ["Python", "TypeScript", "JavaScript", "SQL", "Bash"] },
   {
     label: "Frontend",
     items: ["React", "TanStack", "Next.js", "Astro", "Tailwind CSS", "shadcn/ui"],
@@ -87,6 +87,9 @@ export const stack = [
     label: "Backend",
     items: ["FastAPI", "Flask", "Node.js", "GraphQL", "REST APIs"],
   },
-  { label: "Data", items: ["PostgreSQL", "MySQL", "SQLite", "Prisma"] },
-  { label: "Infra", items: ["AWS", "Docker", "Linux", "CI/CD", "Git"] },
+  {
+    label: "Data",
+    items: ["PostgreSQL", "MySQL", "SQLite", "MongoDB", "Redis", "Prisma", "ELK", "Splunk"],
+  },
+  { label: "DevOps", items: ["AWS", "Docker", "Linux", "GitHub Actions", "Git"] },
 ];
