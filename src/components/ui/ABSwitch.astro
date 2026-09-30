@@ -11,7 +11,15 @@ interface Props {
 const { state, href, label, class: className } = Astro.props;
 ---
 
-<a href={href} rel='nofollow' data-ab-switch data-state={state} aria-label={label} title='A/B' class:list={['ab-switch', className]}>
+<a
+	href={href}
+	rel='nofollow'
+	data-ab-switch
+	data-state={state}
+	aria-label={label}
+	title='A/B'
+	class:list={['ab-switch', className]}
+>
 	<span class='ab-side' data-side='a'>A</span>
 	<span class='ab-track' aria-hidden='true'><span class='ab-knob'></span></span>
 	<span class='ab-side' data-side='b'>B</span>

@@ -25,8 +25,14 @@ export function getBooks() {
   const books = booksJson as Book[];
   return [
     { label: "Reading", books: books.filter((b) => b.status === "reading") },
-    { label: "Finished", books: books.filter((b) => b.status === "completed").slice(0, 5) },
-    { label: "Up next", books: books.filter((b) => b.status === "want-to-read").slice(0, 3) },
+    {
+      label: "Finished",
+      books: books.filter((b) => b.status === "completed").slice(0, 5),
+    },
+    {
+      label: "Up next",
+      books: books.filter((b) => b.status === "want-to-read").slice(0, 3),
+    },
   ].filter((group) => group.books.length > 0);
 }
 
@@ -35,4 +41,6 @@ export function getBooks() {
  * an hour and refreshes in the background, but a failed feed is retried soon.
  */
 export const feedCacheControl = (ok: boolean) =>
-  ok ? "public, s-maxage=3600, stale-while-revalidate=86400" : "public, s-maxage=60";
+  ok
+    ? "public, s-maxage=3600, stale-while-revalidate=86400"
+    : "public, s-maxage=60";

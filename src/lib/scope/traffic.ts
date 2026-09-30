@@ -23,12 +23,18 @@ function toPath(points: Point[]) {
  * Raw ingress with attack bursts, plus the legitimate traffic left
  * after scrubbing. Two identical periods are emitted so the group can be
  * translated by one period and loop seamlessly.
+ *
+ * Also returns what the client needs to react to the chart: the scroll
+ * offsets at which each burst's rising edge reaches the detector at `probe`
+ * (a fraction of the width), and the clean line's height at every sample so
+ * visitor-launched attacks can sit on it.
  */
 export function scrubbedTraffic({
   width = 680,
   height = 140,
   samples = 136,
   seed = 5,
+  probe = 0.94,
 } = {}) {
   const rand = rng(seed);
   const bursts = [
@@ -68,12 +74,28 @@ export function scrubbedTraffic({
 
   const ingressPoints = points(ingress);
   const cleanPoints = points(legit);
+
+  // A sample in the second period sits at width + i * dx and reaches the
+  // detector once the group has scrolled by that minus the probe's position.
+  const threshold = 0.5;
+  const probeX = width * probe;
+  const detections = ingress
+    .map((v, i) => ({ v, i, before: ingress[(i - 1 + samples) % samples] }))
+    .filter(({ v, before }) => v > threshold && before <= threshold)
+    .map(({ i }) => Number(((width + i * dx - probeX) % width).toFixed(1)));
+
   return {
     ingress: toPath(ingressPoints),
     clean: toPath(cleanPoints),
     scrubbed: toPath([...ingressPoints, ...[...cleanPoints].reverse()]) + "Z",
-    thresholdY: y(0.5),
+    thresholdY: y(threshold),
     width,
     height,
+    samples,
+    dx,
+    cleanY: legit.map((v) => Number(y(v).toFixed(1))),
+    /** Chart units per unit of traffic, for drawing new bursts. */
+    unit: (height - pad * 2) / max,
+    detections,
   };
 }

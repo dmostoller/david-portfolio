@@ -23,7 +23,8 @@ export const pages = [
     label: "Writing",
     path: "/blog",
     title: "Writing — David Mostoller",
-    description: "Published work and thoughts on software, design, and building things.",
+    description:
+      "Published work and thoughts on software, design, and building things.",
   },
   {
     id: "reading",
@@ -36,7 +37,8 @@ export const pages = [
 
 export type Page = (typeof pages)[number]["id"];
 
-export const pageMeta = (page: Page) => pages.find((p) => p.id === page) ?? pages[0];
+export const pageMeta = (page: Page) =>
+  pages.find((p) => p.id === page) ?? pages[0];
 
 export const signalHref = (page: Page) => pageMeta(page).path || "/";
 export const scopeHref = (page: Page) => `/scope${pageMeta(page).path}`;

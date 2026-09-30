@@ -7,6 +7,7 @@ export const commandHelp = [
   { name: "cd", summary: "switch window: cd projects" },
   { name: "open", summary: "open the selected row, or row n" },
   { name: "whoami", summary: "who runs this console" },
+  { name: "attack", summary: "try to take me down" },
   { name: "mail", summary: "write to me · mail --copy" },
   { name: "theme", summary: "accent: teal | amber | green | mono" },
   { name: "sound", summary: "ui sounds: on | off" },

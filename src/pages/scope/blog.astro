@@ -22,7 +22,14 @@ const entries = [
 		excerpt: a.description,
 		press: true,
 	})),
-	...posts.map((p) => ({ title: p.title, href: p.href, date: p.date, source: 'medium', excerpt: p.excerpt, press: false })),
+	...posts.map((p) => ({
+		title: p.title,
+		href: p.href,
+		date: p.date,
+		source: 'medium',
+		excerpt: p.excerpt,
+		press: false,
+	})),
 ]
 	.sort((a, b) => timestamp(b.date) - timestamp(a.date))
 	.map((entry, i) => ({ ...entry, key: `entry-${i + 1}` }));
@@ -56,7 +63,9 @@ const entries = [
 								<a href={entry.href} class='text-foreground transition-colors hover:text-primary'>
 									{entry.title}
 								</a>
-								<p class='mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>{entry.excerpt}</p>
+								<p class='mt-1 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>
+									{entry.excerpt}
+								</p>
 							</div>
 						</li>
 					))

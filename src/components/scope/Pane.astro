@@ -14,7 +14,9 @@ const { title, index, aside, class: className, bodyClass = 'p-3 sm:p-4' } = Astr
 ---
 
 <section class:list={['rounded-md border border-border bg-card/70 backdrop-blur-[2px]', className]}>
-	<h2 class='flex h-8 items-center justify-between gap-3 border-b border-border px-3 text-[11px] font-normal text-muted-foreground'>
+	<h2
+		class='flex h-8 items-center justify-between gap-3 border-b border-border px-3 text-[11px] font-normal text-muted-foreground'
+	>
 		<span class='flex min-w-0 items-center gap-1.5'>
 			{index && <span class='text-primary'>{index}</span>}
 			<span class='truncate'>{title}</span>

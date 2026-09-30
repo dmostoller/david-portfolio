@@ -10,14 +10,20 @@ const namedEntities: Record<string, string> = {
 };
 
 export function decodeEntities(text: string) {
-  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, code: string) => {
-    if (code.startsWith("#")) {
-      const hex = code[1].toLowerCase() === "x";
-      const n = parseInt(code.slice(hex ? 2 : 1), hex ? 16 : 10);
-      return Number.isNaN(n) ? match : String.fromCodePoint(n);
-    }
-    return namedEntities[code.toLowerCase()] ?? match;
-  });
+  return text.replace(
+    /&(#x[0-9a-f]+|#\d+|[a-z]+);/gi,
+    (match, code: string) => {
+      if (code.startsWith("#")) {
+        const hex = code[1].toLowerCase() === "x";
+        const n = parseInt(code.slice(hex ? 2 : 1), hex ? 16 : 10);
+        // Out-of-range code points would throw; leave those as written.
+        return Number.isNaN(n) || n > 0x10ffff
+          ? match
+          : String.fromCodePoint(n);
+      }
+      return namedEntities[code.toLowerCase()] ?? match;
+    },
+  );
 }
 
 /** Strips tags without gluing neighboring words together, and decodes entities. */

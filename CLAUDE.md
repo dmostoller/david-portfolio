@@ -7,10 +7,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Use pnpm, not npm.**
 
 ```bash
-pnpm dev      # Start dev server
-pnpm build    # Production build
-pnpm preview  # Preview production build locally
+pnpm dev           # Start dev server
+pnpm build         # Production build
+pnpm check         # Type-check .astro and .ts files
+pnpm format        # Format with Prettier
+pnpm format:check  # Check formatting (what to run before a PR)
 ```
+
+There's no linter or test suite; `pnpm check`, `pnpm format:check`, and `pnpm build` are the checks. `pnpm preview` doesn't work: the Vercel adapter doesn't support it. Prettier's config (`.prettierrc`) formats `.astro` files with tabs, single quotes, and 120 columns, and everything else with Prettier's defaults.
 
 After adding new files, restart `pnpm dev`: the Tailwind v4 Vite plugin doesn't pick up classes from files created while the server is running.
 
@@ -26,7 +30,13 @@ This is an Astro 5 portfolio site with hybrid rendering deployed on Vercel.
 - **Scope** is a hidden alternate design that mirrors every page under `/scope` (`src/layouts/ScopeLayout.astro`). Visitors reach it through the A/B switch in Signal's footer (`src/components/ui/ABSwitch.astro`); flipping it plays a static "crossing" (`src/scripts/crossing.ts`) and loads the same page on the other side.
 - Never show the word "Scope" to visitors. It's an internal name; the console prompt and tab titles use `dbm`.
 - Scope pages set a canonical link to their Signal page and are excluded from the sitemap. Unknown `/scope/*` paths render a 404 ("packet dropped").
-- Scope is always dark, uses its own palette (overrides on `html.scope` in ScopeLayout), and is keyboard-driven. Its client code is `src/scripts/scope/console.ts` (navigation, filter, command line, help, boot log, meters) and `src/scripts/scope/sound.ts` (opt-in Web Audio sounds). Commands and key help live in `src/lib/scope/commands.ts`.
+- Scope is always dark, uses its own palette (overrides on `html.scope` in ScopeLayout), and is keyboard-driven. Its client code lives in `src/scripts/scope/`:
+  - `console.ts`: navigation, filter, command line, help, boot log
+  - `meters.ts`: level meters, peak ticks, the latching clip light, and gain from the knob
+  - `chart.ts`: the signal / noise chart's detector flashes, scrubbed count, and click-to-attack (also the `attack` command)
+  - `knob.ts`: the aux send knob (goes to eleven)
+  - `sound.ts`: opt-in Web Audio sounds; `toast.ts`: the one-line toast
+- Commands and key help live in `src/lib/scope/commands.ts`. The chart's data (including when each burst reaches the detector) is generated at build time in `src/lib/scope/traffic.ts`. The packet running down the signal path is CSS in `src/pages/scope/index.astro`.
 - Both designs read the same content, so edit data once: `src/content/profile.ts` (focus, path, stack, socials), `src/content/*.json`, `src/lib/routes.ts` (page titles and descriptions).
 
 ### Rendering Strategy
@@ -40,7 +50,7 @@ This is an Astro 5 portfolio site with hybrid rendering deployed on Vercel.
 - `src/pages/` - Signal pages, `scope/` pages, and `api/og.png.ts`
 - `src/layouts/` - `BaseLayout.astro` (Signal: SEO meta, fonts, theme script, stripes, radar, header, footer) and `ScopeLayout.astro`
 - `src/components/signal/` - Signal section and page header
-- `src/components/scope/` - Scope panes, page title, traffic chart, level meter
+- `src/components/scope/` - Scope panes, page title, traffic chart, level meter, send knob
 - `src/components/ui/` - ThemeToggle, Icon (inline Lucide SVGs from `icons.ts`), StripedBackground, Radar, ABSwitch
 - `src/scripts/` - Client scripts bundled by Astro (crossing, Scope console and sound)
 - `src/lib/` - Routes, content helpers, formatting (UTC dates, entity decoding), feed caching, Medium and Inoreader clients

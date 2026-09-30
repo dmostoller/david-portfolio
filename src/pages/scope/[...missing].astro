@@ -1,5 +1,5 @@
 ---
-// Scope's 404: any unknown path under /mockups/scope gets a dropped packet.
+// Scope's 404: any unknown path under /scope gets a dropped packet.
 import ScopeLayout from '../../layouts/ScopeLayout.astro';
 import Pane from '../../components/scope/Pane.astro';
 import { scopeHref } from '../../lib/routes';
@@ -41,8 +41,9 @@ const hops = [
 		</Pane>
 
 		<p class='mt-6 text-[12px] text-muted-foreground'>
-			Try <a href={scopeHref('home')} class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'
-				>cd ~</a
+			Try <a
+				href={scopeHref('home')}
+				class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'>cd ~</a
 			>, press 1–4, or type <span class='text-foreground'>ls</span>.
 		</p>
 	</div>

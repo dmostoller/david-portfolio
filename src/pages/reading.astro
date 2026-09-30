@@ -53,7 +53,9 @@ Astro.response.headers.set('Cache-Control', feedCacheControl(articles.length > 0
 						{articles.map((a) => (
 							<li>
 								<a href={a.link} class='group block'>
-									<h3 class='text-sm font-medium text-foreground group-hover:text-primary transition-colors'>{a.title}</h3>
+									<h3 class='text-sm font-medium text-foreground group-hover:text-primary transition-colors'>
+										{a.title}
+									</h3>
 									<p class='mt-0.5 font-mono text-xs text-muted-foreground'>
 										{a.source} · {formatDate(a.pubDate)}
 									</p>

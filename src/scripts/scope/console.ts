@@ -1,9 +1,14 @@
 // Scope's console: keyboard navigation, filtering, the command line, help,
-// the boot sequence, activity-driven meters, and opt-in sound. Loaded only on
-// Scope pages, so Signal never pays for it.
+// and the boot sequence. The meters, the traffic chart, and the aux send knob
+// live in their own modules. Loaded only on Scope pages, so Signal never pays
+// for it.
 import { bindABSwitch, crossTo, paintStatic } from "../crossing";
 import { accents, commandHelp } from "../../lib/scope/commands";
+import { attack } from "./chart";
+import "./knob";
+import { bump } from "./meters";
 import { playBlip, playBoot, playClick, setSound, soundEnabled } from "./sound";
+import { showToast } from "./toast";
 
 interface Route {
   name: string;
@@ -20,8 +25,12 @@ interface ScopeData {
   boot: string[];
 }
 
-const data: ScopeData = JSON.parse(document.getElementById("scope-data")?.textContent ?? "{}");
-const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const data: ScopeData = JSON.parse(
+  document.getElementById("scope-data")?.textContent ?? "{}",
+);
+const reducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+).matches;
 const root = document.documentElement;
 
 function required<T extends Element>(selector: string) {
@@ -39,7 +48,6 @@ const mode = required<HTMLElement>("[data-mode]");
 const statusPath = required<HTMLElement>("[data-status-path]");
 const suggestions = required<HTMLUListElement>("[data-suggestions]");
 const help = required<HTMLElement>("#scope-help");
-const toast = required<HTMLElement>("[data-toast]");
 const basePath = statusPath.textContent?.trim() ?? data.cwd;
 
 const session = {
@@ -64,17 +72,25 @@ const session = {
 let selected: HTMLElement | undefined;
 const hasDetailPanels = document.querySelector("[data-detail-panel]") !== null;
 const visibleRows = () =>
-  [...document.querySelectorAll<HTMLElement>("[data-row]")].filter((row) => !row.hidden);
+  [...document.querySelectorAll<HTMLElement>("[data-row]")].filter(
+    (row) => !row.hidden,
+  );
 
 function select(row: HTMLElement | undefined, { scroll = true } = {}) {
   selected?.removeAttribute("data-selected");
   selected = row;
   if (!row) return;
   row.setAttribute("data-selected", "");
-  if (scroll) row.scrollIntoView({ block: "nearest", behavior: reducedMotion ? "auto" : "smooth" });
+  if (scroll)
+    row.scrollIntoView({
+      block: "nearest",
+      behavior: reducedMotion ? "auto" : "smooth",
+    });
   const detail = row.dataset.detail;
   if (!detail) return;
-  for (const panel of document.querySelectorAll<HTMLElement>("[data-detail-panel]")) {
+  for (const panel of document.querySelectorAll<HTMLElement>(
+    "[data-detail-panel]",
+  )) {
     panel.hidden = panel.dataset.detailPanel !== detail;
   }
 }
@@ -123,9 +139,12 @@ function print(...lines: string[]) {
   output.hidden = false;
   const block = document.createElement("div");
   block.className = "py-0.5";
-  block.append(...lines.map((text) => line(text || " ", "whitespace-pre-wrap")));
+  block.append(
+    ...lines.map((text) => line(text || " ", "whitespace-pre-wrap")),
+  );
   outputLines.append(block);
-  while (outputLines.childElementCount > 14) outputLines.firstElementChild?.remove();
+  while (outputLines.childElementCount > 14)
+    outputLines.firstElementChild?.remove();
   outputLines.scrollTop = outputLines.scrollHeight;
 }
 
@@ -145,15 +164,10 @@ function hideOutput() {
   outputLines.replaceChildren();
 }
 
-required<HTMLButtonElement>("[data-output-close]").addEventListener("click", hideOutput);
-
-let toastTimer: number | undefined;
-function showToast(message: string, ms = 1800) {
-  toast.textContent = message;
-  toast.hidden = false;
-  window.clearTimeout(toastTimer);
-  toastTimer = window.setTimeout(() => (toast.hidden = true), ms);
-}
+required<HTMLButtonElement>("[data-output-close]").addEventListener(
+  "click",
+  hideOutput,
+);
 
 // ---------------------------------------------------------------- filter
 
@@ -165,12 +179,17 @@ function applyFilter(query: string) {
   let total = 0;
   for (const row of document.querySelectorAll<HTMLElement>("[data-row]")) {
     total++;
-    const match = !activeFilter || (row.textContent ?? "").toLowerCase().includes(activeFilter);
+    const match =
+      !activeFilter ||
+      (row.textContent ?? "").toLowerCase().includes(activeFilter);
     row.hidden = !match;
     if (match) shown++;
   }
-  statusPath.textContent = activeFilter ? `${data.cwd} · /${activeFilter} · ${shown}/${total}` : basePath;
-  if (!selected || selected.hidden) select(hasDetailPanels ? visibleRows()[0] : undefined, { scroll: false });
+  statusPath.textContent = activeFilter
+    ? `${data.cwd} · /${activeFilter} · ${shown}/${total}`
+    : basePath;
+  if (!selected || selected.hidden)
+    select(hasDetailPanels ? visibleRows()[0] : undefined, { scroll: false });
 }
 
 // ---------------------------------------------------------------- prompt
@@ -189,7 +208,10 @@ function openPrompt(kind: PromptKind, initial = "") {
   prompt.hidden = false;
   statusPath.hidden = true;
   promptSigil.textContent = kind === "command" ? ":" : "/";
-  promptInput.setAttribute("aria-label", kind === "command" ? "Command" : "Filter this window");
+  promptInput.setAttribute(
+    "aria-label",
+    kind === "command" ? "Command" : "Filter this window",
+  );
   promptInput.value = initial;
   historyIndex = history.length;
   setMode(kind === "command" ? "COMMAND" : "FILTER");
@@ -221,7 +243,10 @@ function argumentOptions(command: string) {
 
 function completions(value: string) {
   const parts = value.trimStart().split(/\s+/);
-  if (parts.length <= 1) return commandNames().filter((name) => name.startsWith(parts[0].toLowerCase()));
+  if (parts.length <= 1)
+    return commandNames().filter((name) =>
+      name.startsWith(parts[0].toLowerCase()),
+    );
   const partial = parts[parts.length - 1].toLowerCase();
   return argumentOptions(parts[0].toLowerCase())
     .filter((option) => option.startsWith(partial))
@@ -246,7 +271,8 @@ function updateSuggestions() {
       name.textContent = item;
       const summary = document.createElement("span");
       summary.className = "truncate text-muted-foreground";
-      summary.textContent = commandHelp.find((c) => c.name === item)?.summary ?? "";
+      summary.textContent =
+        commandHelp.find((c) => c.name === item)?.summary ?? "";
       button.append(name, summary);
       li.append(button);
       return li;
@@ -258,9 +284,12 @@ function updateSuggestions() {
 // Keep focus in the input while a suggestion is being clicked.
 suggestions.addEventListener("pointerdown", (event) => event.preventDefault());
 suggestions.addEventListener("click", (event) => {
-  const value = (event.target as Element).closest<HTMLElement>("[data-suggestion]")?.dataset.suggestion;
+  const value = (event.target as Element).closest<HTMLElement>(
+    "[data-suggestion]",
+  )?.dataset.suggestion;
   if (!value) return;
-  const needsArgument = argumentOptions(value).length > 0 && !value.includes(" ");
+  const needsArgument =
+    argumentOptions(value).length > 0 && !value.includes(" ");
   if (needsArgument) {
     promptInput.value = `${value} `;
     updateSuggestions();
@@ -276,11 +305,15 @@ function complete() {
   if (items.length === 0) return;
   if (items.length === 1) {
     const [only] = items;
-    promptInput.value = argumentOptions(only).length > 0 && !only.includes(" ") ? `${only} ` : only;
+    promptInput.value =
+      argumentOptions(only).length > 0 && !only.includes(" ")
+        ? `${only} `
+        : only;
   } else {
     // Extend to the longest prefix every option shares.
     let prefix = items[0];
-    for (const item of items) while (!item.startsWith(prefix)) prefix = prefix.slice(0, -1);
+    for (const item of items)
+      while (!item.startsWith(prefix)) prefix = prefix.slice(0, -1);
     if (prefix.length > promptInput.value.length) promptInput.value = prefix;
   }
   updateSuggestions();
@@ -300,9 +333,18 @@ promptInput.addEventListener("keydown", (event) => {
   } else if (event.key === "Tab" && promptKind === "command") {
     event.preventDefault();
     complete();
-  } else if (promptKind === "command" && (event.key === "ArrowUp" || event.key === "ArrowDown")) {
+  } else if (
+    promptKind === "command" &&
+    (event.key === "ArrowUp" || event.key === "ArrowDown")
+  ) {
     event.preventDefault();
-    historyIndex = Math.max(0, Math.min(history.length, historyIndex + (event.key === "ArrowUp" ? -1 : 1)));
+    historyIndex = Math.max(
+      0,
+      Math.min(
+        history.length,
+        historyIndex + (event.key === "ArrowUp" ? -1 : 1),
+      ),
+    );
     promptInput.value = history[historyIndex] ?? "";
     updateSuggestions();
   }
@@ -322,16 +364,30 @@ promptInput.addEventListener("blur", () => {
   }, 120);
 });
 
-required<HTMLButtonElement>("[data-prompt-open]").addEventListener("click", () => openPrompt("command"));
+required<HTMLButtonElement>("[data-prompt-open]").addEventListener(
+  "click",
+  () => openPrompt("command"),
+);
 
 // ---------------------------------------------------------------- commands
 
 function navigate(target: string) {
-  const key = target.replace(/^~\/?/, "").replace(/\/$/, "").toLowerCase() || "home";
-  const route = data.routes.find((r) => r.name === key || r.aliases.includes(key));
+  const key =
+    target.replace(/^~\/?/, "").replace(/\/$/, "").toLowerCase() || "home";
+  const route = data.routes.find(
+    (r) => r.name === key || r.aliases.includes(key),
+  );
   if (!route) {
     print(`cd: no such route: ${target}`, "packet dropped.");
     playBlip(220);
+    return;
+  }
+  // Going to the window you're in would just reload it.
+  if (
+    new URL(route.href, window.location.href).pathname ===
+    window.location.pathname
+  ) {
+    showToast(`already in ${data.cwd}`, 1200);
     return;
   }
   playBlip();
@@ -339,7 +395,8 @@ function navigate(target: string) {
 }
 
 function exitScope() {
-  for (const link of document.querySelectorAll<HTMLElement>("[data-ab-switch]")) link.dataset.state = "a";
+  for (const link of document.querySelectorAll<HTMLElement>("[data-ab-switch]"))
+    link.dataset.state = "a";
   crossTo(data.exit);
 }
 
@@ -362,7 +419,10 @@ async function mail(flag?: string) {
     }
     return;
   }
-  print(`opening mail to ${data.email}…`, "(mail --copy copies the address instead)");
+  print(
+    `opening mail to ${data.email}…`,
+    "(mail --copy copies the address instead)",
+  );
   window.location.href = `mailto:${data.email}`;
 }
 
@@ -372,10 +432,15 @@ const commands: Record<string, (args: string[]) => void> = {
   cd: ([target = "~"]) => navigate(target),
   open: ([n]) => {
     const row = n ? visibleRows()[Number(n) - 1] : selected;
-    if (!row) print(n ? `open: no row ${n}` : "open: nothing selected (j/k to select)");
+    if (!row)
+      print(n ? `open: no row ${n}` : "open: nothing selected (j/k to select)");
     else if (!openRow(row)) print("open: that row has no link");
   },
   whoami: () => print(...data.whoami),
+  attack: () => {
+    if (attack()) print("sending one attack toward dbm…");
+    else print("attack: nothing to hit in this window. cd ~ first");
+  },
   mail: ([flag]) => void mail(flag),
   theme: ([name]) => {
     if (!name || !(accents as readonly string[]).includes(name)) {
@@ -393,7 +458,11 @@ const commands: Record<string, (args: string[]) => void> = {
     if (on) playBoot();
   },
   history: () =>
-    print(...(history.length ? history.map((entry, i) => `${String(i + 1).padStart(3)}  ${entry}`) : ["(empty)"])),
+    print(
+      ...(history.length
+        ? history.map((entry, i) => `${String(i + 1).padStart(3)}  ${entry}`)
+        : ["(empty)"]),
+    ),
   clear: () => hideOutput(),
   exit: () => exitScope(),
   // Not listed in help.
@@ -402,7 +471,12 @@ const commands: Record<string, (args: string[]) => void> = {
   echo: (args) => print(args.join(" ")),
 };
 
-const commandAliases: Record<string, string> = { quit: "exit", q: "exit", man: "help", "?": "help" };
+const commandAliases: Record<string, string> = {
+  quit: "exit",
+  q: "exit",
+  man: "help",
+  "?": "help",
+};
 
 function run(input: string) {
   const text = input.trim();
@@ -441,15 +515,24 @@ function closeHelp() {
   focusBeforeHelp?.focus?.();
 }
 
-for (const button of document.querySelectorAll("[data-help-open]")) button.addEventListener("click", openHelp);
-required<HTMLButtonElement>("[data-help-close]").addEventListener("click", closeHelp);
+for (const button of document.querySelectorAll("[data-help-open]"))
+  button.addEventListener("click", openHelp);
+required<HTMLButtonElement>("[data-help-close]").addEventListener(
+  "click",
+  closeHelp,
+);
 help.addEventListener("click", (event) => {
   if (event.target === help) closeHelp();
 });
 
 // ---------------------------------------------------------------- keyboard
 
-const chords: Record<string, string> = { h: "home", p: "projects", w: "writing", r: "reading" };
+const chords: Record<string, string> = {
+  h: "home",
+  p: "projects",
+  w: "writing",
+  r: "reading",
+};
 let awaitingChord = false;
 let lastEscape = 0;
 
@@ -464,9 +547,17 @@ function handleEscape() {
 
 document.addEventListener("keydown", (event) => {
   bump(0.22);
-  if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+  if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey)
+    return;
   const target = event.target instanceof Element ? event.target : document.body;
-  if (target === promptInput || target.closest("input, textarea, select, [contenteditable='true']")) return;
+  if (
+    target === promptInput ||
+    target.closest("input, textarea, select, [contenteditable='true']")
+  )
+    return;
+  // A held key repeats. That's handy for j/k, but a held number key would keep
+  // switching windows, including on the page it just loaded.
+  if (event.repeat && event.key !== "j" && event.key !== "k") return;
 
   if (bootActive) {
     event.preventDefault();
@@ -493,6 +584,8 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && target.closest("a, button")) return;
 
   let handled = true;
+  // Navigation plays its own blip, so it skips the key click.
+  let click = true;
   switch (event.key) {
     case "j":
       move(1);
@@ -503,6 +596,7 @@ document.addEventListener("keydown", (event) => {
     case "Enter":
     case "o":
       handled = openRow();
+      click = false;
       break;
     case "/":
       openPrompt("filter", activeFilter);
@@ -521,44 +615,16 @@ document.addEventListener("keydown", (event) => {
       handleEscape();
       break;
     default:
-      if (/^[1-4]$/.test(event.key)) navigate(data.routes[Number(event.key) - 1].name);
-      else handled = false;
+      if (/^[1-4]$/.test(event.key)) {
+        navigate(data.routes[Number(event.key) - 1].name);
+        click = false;
+      } else handled = false;
   }
   if (handled) {
     event.preventDefault();
-    playClick();
+    if (click) playClick();
   }
 });
-
-// ---------------------------------------------------------------- meters
-
-const channels = [...document.querySelectorAll<HTMLElement>("[data-meter-channel]")];
-let energy = 0;
-
-function bump(amount: number) {
-  energy = Math.min(1, energy + amount);
-}
-
-if (channels.length > 0 && !reducedMotion) {
-  root.dataset.metersLive = "";
-  let last = performance.now();
-  const tick = (now: number) => {
-    const dt = Math.min(0.1, (now - last) / 1000);
-    last = now;
-    energy *= Math.pow(0.12, dt);
-    const t = now / 1000;
-    channels.forEach((channel, i) => {
-      const idle = 0.34 + 0.09 * Math.sin(t * 1.9 + i * 1.7) + 0.05 * Math.sin(t * 5.3 + i * 0.6);
-      const jitter = (Math.random() - 0.5) * 0.08 * (0.3 + energy);
-      const level = Math.max(0.05, Math.min(0.98, idle + energy * 0.6 + jitter));
-      channel.style.setProperty("--level", `${(level * 100).toFixed(1)}%`);
-    });
-    requestAnimationFrame(tick);
-  };
-  requestAnimationFrame(tick);
-  window.addEventListener("scroll", () => bump(0.03), { passive: true });
-  window.addEventListener("pointerdown", () => bump(0.15), { passive: true });
-}
 
 // ---------------------------------------------------------------- sound toggle
 
@@ -584,14 +650,20 @@ syncSoundToggle();
 
 const clock = document.querySelector("[data-clock]");
 const tickClock = () => {
-  if (clock) clock.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (clock)
+    clock.textContent = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 };
 tickClock();
 window.setInterval(tickClock, 15_000);
 
 // ---------------------------------------------------------------- copy buttons
 
-for (const button of document.querySelectorAll<HTMLButtonElement>("[data-copy]")) {
+for (const button of document.querySelectorAll<HTMLButtonElement>(
+  "[data-copy]",
+)) {
   button.addEventListener("click", async () => {
     const label = button.querySelector("[data-copy-label]") ?? button;
     const original = label.textContent;
@@ -646,13 +718,23 @@ async function startBoot() {
 
   data.boot.forEach((text, i) => {
     bootTimers.push(
-      window.setTimeout(() => {
-        lines.append(line(text || " ", text.startsWith("[ ok ]") ? "text-muted-foreground" : undefined));
-        bump(0.3);
-      }, 120 + i * 95),
+      window.setTimeout(
+        () => {
+          lines.append(
+            line(
+              text || " ",
+              text.startsWith("[ ok ]") ? "text-muted-foreground" : undefined,
+            ),
+          );
+          bump(0.3);
+        },
+        120 + i * 95,
+      ),
     );
   });
-  bootTimers.push(window.setTimeout(finishBoot, 120 + data.boot.length * 95 + 650));
+  bootTimers.push(
+    window.setTimeout(finishBoot, 120 + data.boot.length * 95 + 650),
+  );
 }
 
 if (!reducedMotion && !session.get("scope-booted")) {

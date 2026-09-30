@@ -24,51 +24,56 @@ const linkClass = 'text-muted-foreground transition-colors hover:text-primary';
 	/>
 
 	<div class='grid items-start gap-4 lg:grid-cols-12'>
-		<Pane title='ps aux --sort=featured' aside={`${processes.length} procs`} class='lg:col-span-8' bodyClass='p-0'>
+		<Pane
+			title='ps aux --sort=featured'
+			aside={`${processes.length} procs`}
+			class='min-w-0 lg:col-span-8'
+			bodyClass='p-0'
+		>
 			<div class='overflow-x-auto'>
-			<table class='w-full text-[12px]'>
-				<thead class='text-[10px] uppercase tracking-wider text-muted-foreground'>
-					<tr class='border-b border-border'>
-						<th scope='col' class='hidden w-14 px-3 py-2 text-left font-normal sm:table-cell'>pid</th>
-						<th scope='col' class='px-3 py-2 text-left font-normal'>name</th>
-						<th scope='col' class='w-16 px-3 py-2 text-left font-normal'>stat</th>
-						<th scope='col' class='hidden px-3 py-2 text-left font-normal md:table-cell'>stack</th>
-						<th scope='col' class='px-3 py-2 text-right font-normal'><span class='sr-only'>links</span></th>
-					</tr>
-				</thead>
-				<tbody class='divide-y divide-border'>
-					{
-						processes.map((p) => (
-							<tr data-row data-href={projectLink(p)} data-detail={p.key}>
-								<td class='hidden px-3 py-2.5 align-top text-muted-foreground sm:table-cell'>{p.pid}</td>
-								<td class='px-3 py-2.5 align-top'>
-									<a href={projectLink(p)} class='text-foreground transition-colors hover:text-primary'>
-										{p.title}
-									</a>
-									<p class='mt-1 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>{p.description}</p>
-								</td>
-								<td class:list={['px-3 py-2.5 align-top', statClass(p.stat)]}>{p.stat}</td>
-								<td class='hidden px-3 py-2.5 align-top text-muted-foreground md:table-cell'>
-									{p.tech.slice(0, 3).join(', ').toLowerCase()}
-								</td>
-								<td class='whitespace-nowrap px-3 py-2.5 text-right align-top'>
-									{p.live && (
-										<a href={p.live} class={linkClass}>
-											live ↗
+				<table class='w-full text-[12px]'>
+					<thead class='text-[10px] uppercase tracking-wider text-muted-foreground'>
+						<tr class='border-b border-border'>
+							<th scope='col' class='hidden w-14 px-3 py-2 text-left font-normal sm:table-cell'>pid</th>
+							<th scope='col' class='px-3 py-2 text-left font-normal'>name</th>
+							<th scope='col' class='w-16 px-3 py-2 text-left font-normal'>stat</th>
+							<th scope='col' class='hidden px-3 py-2 text-left font-normal md:table-cell'>stack</th>
+							<th scope='col' class='px-3 py-2 text-right font-normal'><span class='sr-only'>links</span></th>
+						</tr>
+					</thead>
+					<tbody class='divide-y divide-border'>
+						{
+							processes.map((p) => (
+								<tr data-row data-href={projectLink(p)} data-detail={p.key}>
+									<td class='hidden px-3 py-2.5 align-top text-muted-foreground sm:table-cell'>{p.pid}</td>
+									<td class='px-3 py-2.5 align-top'>
+										<a href={projectLink(p)} class='text-foreground transition-colors hover:text-primary'>
+											{p.title}
 										</a>
-									)}
-									{p.live && p.github && ' '}
-									{p.github && (
-										<a href={p.github} class={linkClass}>
-											src ↗
-										</a>
-									)}
-								</td>
-							</tr>
-						))
-					}
-				</tbody>
-			</table>
+										<p class='mt-1 text-[11px] leading-relaxed text-muted-foreground lg:hidden'>{p.description}</p>
+									</td>
+									<td class:list={['px-3 py-2.5 align-top', statClass(p.stat)]}>{p.stat}</td>
+									<td class='hidden px-3 py-2.5 align-top text-muted-foreground md:table-cell'>
+										{p.tech.slice(0, 3).join(', ').toLowerCase()}
+									</td>
+									<td class='whitespace-nowrap px-3 py-2.5 text-right align-top'>
+										{p.live && (
+											<a href={p.live} class={linkClass}>
+												live ↗
+											</a>
+										)}
+										{p.live && p.github && ' '}
+										{p.github && (
+											<a href={p.github} class={linkClass}>
+												src ↗
+											</a>
+										)}
+									</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
 			</div>
 		</Pane>
 

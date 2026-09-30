@@ -9,7 +9,11 @@ export const socials: { label: string; href: string; icon: IconName }[] = [
     href: "https://linkedin.com/in/david-mostoller",
     icon: "linkedin",
   },
-  { label: "Medium", href: "https://medium.com/@dmostoller", icon: "book-open" },
+  {
+    label: "Medium",
+    href: "https://medium.com/@dmostoller",
+    icon: "book-open",
+  },
   {
     label: "Bluesky",
     href: "https://bsky.app/profile/davemostoller.bsky.social",
@@ -44,11 +48,36 @@ export interface PathStep {
 
 // Chronological. Titles say what, details say where.
 export const path: PathStep[] = [
-  { id: "wesleyan", stage: "study", title: "B.A. Government", detail: "Wesleyan University" },
-  { id: "developer", stage: "dev", title: "Software Developer", detail: "Entourage Yearbooks, Princeton" },
-  { id: "data", stage: "data", title: "Business Analyst", detail: "Zoomer, Philadelphia" },
-  { id: "flatiron", stage: "code", title: "Software Engineering", detail: "Flatiron School, NYC" },
-  { id: "agency", stage: "agency", title: "Software Engineer", detail: "SPRY Group, Brooklyn" },
+  {
+    id: "wesleyan",
+    stage: "study",
+    title: "B.A. Government",
+    detail: "Wesleyan University",
+  },
+  {
+    id: "developer",
+    stage: "dev",
+    title: "Software Developer",
+    detail: "Entourage Yearbooks, Princeton",
+  },
+  {
+    id: "data",
+    stage: "data",
+    title: "Business Analyst",
+    detail: "Zoomer, Philadelphia",
+  },
+  {
+    id: "flatiron",
+    stage: "code",
+    title: "Software Engineering",
+    detail: "Flatiron School, NYC",
+  },
+  {
+    id: "agency",
+    stage: "agency",
+    title: "Software Engineer",
+    detail: "SPRY Group, Brooklyn",
+  },
   {
     id: "comcast",
     stage: "security",
@@ -78,10 +107,20 @@ export const stack = [
       "LLM Agents",
     ],
   },
-  { label: "Languages", items: ["Python", "TypeScript", "JavaScript", "SQL", "Bash"] },
+  {
+    label: "Languages",
+    items: ["Python", "TypeScript", "JavaScript", "SQL", "Bash"],
+  },
   {
     label: "Frontend",
-    items: ["React", "TanStack", "Next.js", "Astro", "Tailwind CSS", "shadcn/ui"],
+    items: [
+      "React",
+      "TanStack",
+      "Next.js",
+      "Astro",
+      "Tailwind CSS",
+      "shadcn/ui",
+    ],
   },
   {
     label: "Backend",
@@ -89,7 +128,19 @@ export const stack = [
   },
   {
     label: "Data",
-    items: ["PostgreSQL", "MySQL", "SQLite", "MongoDB", "Redis", "Prisma", "ELK", "Splunk"],
+    items: [
+      "PostgreSQL",
+      "MySQL",
+      "SQLite",
+      "MongoDB",
+      "Redis",
+      "Prisma",
+      "ELK",
+      "Splunk",
+    ],
   },
-  { label: "DevOps", items: ["AWS", "Docker", "Linux", "GitHub Actions", "Git"] },
+  {
+    label: "DevOps",
+    items: ["AWS", "Docker", "Linux", "GitHub Actions", "Git"],
+  },
 ];

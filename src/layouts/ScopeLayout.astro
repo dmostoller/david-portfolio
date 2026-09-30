@@ -104,10 +104,7 @@ const canonical = new URL(exitHref, Astro.site);
 		<meta name='twitter:image' content={ogImageURL} />
 		<link rel='preconnect' href='https://fonts.googleapis.com' />
 		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
-		<link
-			href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap'
-			rel='stylesheet'
-		/>
+		<link href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap' rel='stylesheet' />
 		<script is:inline>
 			try {
 				const accent = localStorage.getItem('scope-accent');
@@ -187,12 +184,20 @@ const canonical = new URL(exitHref, Astro.site);
 			class='pointer-events-none fixed inset-x-0 bottom-9 z-30'
 		>
 			<div class='mx-auto max-w-[1400px] px-4 sm:px-6'>
-				<div class='pointer-events-auto w-full rounded-t-md border border-b-0 border-border bg-card/95 shadow-lg backdrop-blur sm:w-[36rem]'>
-					<div class='flex h-7 items-center justify-between border-b border-border px-3 text-[10px] text-muted-foreground'>
+				<div
+					class='pointer-events-auto w-full rounded-t-md border border-b-0 border-border bg-card/95 shadow-lg backdrop-blur sm:w-[36rem]'
+				>
+					<div
+						class='flex h-7 items-center justify-between border-b border-border px-3 text-[10px] text-muted-foreground'
+					>
 						<span>output</span>
 						<button type='button' data-output-close class='hover:text-foreground'>esc ✕</button>
 					</div>
-					<div data-output-lines aria-live='polite' class='max-h-56 overflow-y-auto px-3 py-2 text-[12px] leading-relaxed'>
+					<div
+						data-output-lines
+						aria-live='polite'
+						class='max-h-56 overflow-y-auto px-3 py-2 text-[12px] leading-relaxed'
+					>
 					</div>
 				</div>
 			</div>
@@ -256,7 +261,9 @@ const canonical = new URL(exitHref, Astro.site);
 				aria-labelledby='scope-help-title'
 				class='w-full max-w-2xl rounded-md border border-border bg-card shadow-2xl'
 			>
-				<div class='flex h-9 items-center justify-between border-b border-border px-4 text-[11px] text-muted-foreground'>
+				<div
+					class='flex h-9 items-center justify-between border-b border-border px-4 text-[11px] text-muted-foreground'
+				>
 					<h2 id='scope-help-title'><span class='text-primary'>?</span> help</h2>
 					<button type='button' data-help-close class='hover:text-foreground'>esc ✕</button>
 				</div>
@@ -289,13 +296,18 @@ const canonical = new URL(exitHref, Astro.site);
 					</section>
 				</div>
 				<p class='border-t border-border px-4 py-2.5 text-[11px] text-muted-foreground'>
-					Flip the A/B switch, type <span class='text-foreground'>exit</span>, or press esc twice to go back to the
-					main site.
+					Flip the A/B switch, type <span class='text-foreground'>exit</span>, or press esc twice to go back to the main
+					site.
 				</p>
 			</div>
 		</div>
 
-		<div id='scope-boot' hidden aria-hidden='true' class='fixed inset-0 z-[60] bg-background transition-opacity duration-300'>
+		<div
+			id='scope-boot'
+			hidden
+			aria-hidden='true'
+			class='fixed inset-0 z-[60] bg-background transition-opacity duration-300'
+		>
 			<canvas data-boot-static class='absolute inset-0 h-full w-full [image-rendering:pixelated]'></canvas>
 			<div class='relative mx-auto max-w-[1400px] px-4 pt-16 sm:px-6'>
 				<pre data-boot-lines class='text-[12px] leading-relaxed text-foreground'></pre>
@@ -416,6 +428,35 @@ const canonical = new URL(exitHref, Astro.site);
 	}
 	html.scope[data-meters-live] .meter-lit {
 		animation: none;
+	}
+	/* Peak ticks hold at the highest recent level, then fall. Only meters.ts moves them. */
+	html.scope .meter-peak {
+		position: absolute;
+		inset-inline: 0;
+		bottom: calc(var(--peak, 0%) - 2px);
+		height: 2px;
+		border-radius: 1px;
+		background: var(--foreground);
+		opacity: 0.85;
+	}
+	html.scope .meter-peak[data-hot] {
+		background: var(--destructive);
+	}
+	html.scope:not([data-meters-live]) .meter-peak {
+		display: none;
+	}
+	html.scope .clip-led {
+		background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+		transition:
+			background-color 100ms,
+			box-shadow 100ms;
+	}
+	html.scope .clip-light[data-lit] {
+		color: var(--destructive);
+	}
+	html.scope .clip-light[data-lit] .clip-led {
+		background: var(--destructive);
+		box-shadow: 0 0 6px var(--destructive);
 	}
 	@keyframes meter-idle {
 		0% {

@@ -28,7 +28,11 @@ function audio() {
 }
 
 function noise(ctx: AudioContext, seconds: number) {
-  const buffer = ctx.createBuffer(1, Math.max(1, Math.floor(ctx.sampleRate * seconds)), ctx.sampleRate);
+  const buffer = ctx.createBuffer(
+    1,
+    Math.max(1, Math.floor(ctx.sampleRate * seconds)),
+    ctx.sampleRate,
+  );
   const samples = buffer.getChannelData(0);
   for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
   return buffer;
@@ -108,4 +112,27 @@ export function playStatic(seconds = 0.45) {
   source.connect(band).connect(gain).connect(ctx.destination);
   source.start(at);
   source.stop(at + seconds);
+}
+
+/** A short rising feedback squeal, for turning the send up to eleven. */
+export function playFeedback() {
+  if (!soundEnabled()) return;
+  const ctx = audio();
+  const at = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(900, at);
+  osc.frequency.exponentialRampToValueAtTime(2600, at + 0.6);
+  const band = ctx.createBiquadFilter();
+  band.type = "bandpass";
+  band.Q.value = 6;
+  band.frequency.setValueAtTime(1200, at);
+  band.frequency.exponentialRampToValueAtTime(2600, at + 0.6);
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, at);
+  gain.gain.exponentialRampToValueAtTime(0.04, at + 0.3);
+  gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.7);
+  osc.connect(band).connect(gain).connect(ctx.destination);
+  osc.start(at);
+  osc.stop(at + 0.75);
 }

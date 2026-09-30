@@ -4,6 +4,7 @@ import ScopeLayout from '../../layouts/ScopeLayout.astro';
 import Pane from '../../components/scope/Pane.astro';
 import TrafficScope from '../../components/scope/TrafficScope.astro';
 import AuxMeter from '../../components/scope/AuxMeter.astro';
+import SendKnob from '../../components/scope/SendKnob.astro';
 import headshot from '../../assets/headshot.jpg';
 import { email, focus, parallelTrack, path, socials, stack } from '../../content/profile';
 
@@ -19,7 +20,7 @@ const trackAfter = path[Math.max(...rows) - 1]?.id;
 // The last row has no bottom padding, so a track ending there shouldn't either.
 const trackReachesEnd = Math.max(...rows) === path.length;
 
-const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', 'help'];
+const tryCommands = ['whoami', 'attack', 'cd projects', 'theme amber', 'sound on', 'ls', 'help'];
 ---
 
 <ScopeLayout page='home' status='6 panes'>
@@ -43,9 +44,9 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 			</div>
 			<div class='scope-prose mt-5 space-y-3 leading-relaxed text-muted-foreground'>
 				<p class='text-foreground/90'>
-					I'm a senior software engineer on Comcast's DDoS Mitigation Services team, building the internal
-					tools, intelligence platforms, and automation that security engineers use to protect one of the
-					largest networks in the U.S.
+					I'm a senior software engineer on Comcast's DDoS Mitigation Services team, building the internal tools,
+					intelligence platforms, and automation that security engineers use to protect one of the largest networks in
+					the U.S.
 				</p>
 				<p>
 					Outside of software, I produce electronic music as <a href='https://kabayun.com'>Kabayun</a> and <a
@@ -59,8 +60,9 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 					<span class='min-w-0 truncate'>
 						<span class='text-primary'>$</span>
 						<span class='hidden sm:inline'>mail</span>
-						<a href={`mailto:${email}`} class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'
-							>{email}</a
+						<a
+							href={`mailto:${email}`}
+							class='text-foreground underline decoration-border underline-offset-4 hover:decoration-primary'>{email}</a
 						>
 					</span>
 					<button
@@ -84,7 +86,9 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 		</Pane>
 
 		<Pane title='signal / noise' index='02' class='lg:col-span-7' bodyClass='p-0'>
-			<span slot='aside' class='flex items-center gap-1.5'><i class='inline-block h-px w-3 bg-muted-foreground'></i>ingress</span>
+			<span slot='aside' class='flex items-center gap-1.5'
+				><i class='inline-block h-px w-3 bg-muted-foreground'></i>ingress</span
+			>
 			<span slot='aside' class='flex items-center gap-1.5'><i class='inline-block h-0.5 w-3 bg-primary'></i>clean</span>
 			<TrafficScope class='h-40 sm:h-52' />
 		</Pane>
@@ -106,7 +110,7 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 		</Pane>
 
 		<Pane title='signal path' index='04' class='lg:col-span-5 lg:row-span-2'>
-			<ol class='grid sm:grid-cols-[1fr_9.5rem] sm:gap-x-3'>
+			<ol class='hops grid sm:grid-cols-[1fr_9.5rem] sm:gap-x-3'>
 				{
 					path.map((step, i) => (
 						<>
@@ -119,9 +123,11 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 							>
 								<div
 									class:list={[
-										'flex items-baseline gap-3 rounded border px-3 py-2.5',
-										step.current ? 'border-primary/60 bg-primary/5' : 'border-border',
+										'hop relative flex items-baseline gap-3 rounded border px-3 py-2.5',
+										step.current ? 'hop-land border-primary/60 bg-primary/5' : 'border-border',
 									]}
+									style={`--hop: ${i}`}
+									data-hop-land={step.current ? '' : undefined}
 								>
 									<span
 										class:list={[
@@ -138,7 +144,11 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 									{step.when && <span class='hidden shrink-0 text-[10px] text-primary sm:inline'>{step.when}</span>}
 								</div>
 								{i < path.length - 1 && (
-									<span aria-hidden='true' class='absolute bottom-1 left-8 text-[10px] leading-none text-muted-foreground'>
+									<span
+										aria-hidden='true'
+										class='hop-arrow absolute bottom-1 left-8 text-[10px] leading-none text-muted-foreground'
+										style={`--hop: ${i}`}
+									>
 										↓
 									</span>
 								)}
@@ -158,6 +168,7 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 										</p>
 										<h3 class='mt-1 leading-snug text-foreground'>{parallelTrack.title}</h3>
 										<p class='text-[11px] text-muted-foreground'>{parallelTrack.detail} · in parallel</p>
+										<SendKnob class='mt-4 hidden sm:flex' />
 										<AuxMeter class='mt-4 hidden min-h-24 flex-1 sm:flex' />
 									</div>
 								</li>
@@ -204,3 +215,75 @@ const tryCommands = ['whoami', 'cd projects', 'theme amber', 'sound on', 'ls', '
 		</Pane>
 	</div>
 </ScopeLayout>
+
+<style>
+	/* Every 20 seconds a packet runs down the signal path: each stage lights up
+	   as it passes, the arrows hop, and it lands on the current role (which
+	   kicks the meters). The keyframe percentages assume the 20s cycle: 2.5% is
+	   half a second. */
+	.hops {
+		--hop-cycle: 20s;
+		--hop-step: 420ms;
+	}
+	.hop::after {
+		content: '';
+		position: absolute;
+		inset: -1px;
+		border: 1px solid var(--primary);
+		border-radius: inherit;
+		box-shadow: 0 0 14px color-mix(in oklch, var(--primary) 30%, transparent);
+		opacity: 0;
+		pointer-events: none;
+		animation: hop-pass var(--hop-cycle) linear calc(var(--hop) * var(--hop-step)) infinite;
+	}
+	.hop-land::after {
+		background: color-mix(in oklch, var(--primary) 12%, transparent);
+		box-shadow: 0 0 28px color-mix(in oklch, var(--primary) 40%, transparent);
+		animation-name: hop-land;
+	}
+	.hop-arrow {
+		animation: hop-arrow var(--hop-cycle) var(--ease-out) calc(var(--hop) * var(--hop-step) + var(--hop-step) / 2)
+			infinite;
+	}
+	@keyframes hop-pass {
+		0% {
+			opacity: 1;
+		}
+		2.5%,
+		100% {
+			opacity: 0;
+		}
+	}
+	@keyframes hop-land {
+		0% {
+			opacity: 1;
+		}
+		7.5%,
+		100% {
+			opacity: 0;
+		}
+	}
+	@keyframes hop-arrow {
+		0% {
+			color: var(--primary);
+			translate: 0 -2px;
+			text-shadow: 0 0 6px var(--primary);
+		}
+		1.5% {
+			color: var(--primary);
+			translate: 0 3px;
+		}
+		3%,
+		100% {
+			color: var(--muted-foreground);
+			translate: 0 0;
+			text-shadow: none;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.hop::after,
+		.hop-arrow {
+			animation: none;
+		}
+	}
+</style>

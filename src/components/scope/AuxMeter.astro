@@ -1,6 +1,7 @@
 ---
-// A stereo level meter. It idles on its own and console.ts drives it harder
-// when the visitor types or scrolls.
+// A stereo level meter with peak ticks and a clip light. It idles on its own,
+// and scripts/scope/meters.ts drives it harder when the visitor types, scrolls,
+// or turns up the send. The clip light latches until it's clicked.
 interface Props {
 	/** Include a display utility (e.g. "flex" or "hidden sm:flex"); the meter sets none itself. */
 	class?: string;
@@ -16,23 +17,35 @@ const channels = [
 const scale = ['0', '-6', '-12', '-24', '-48'];
 ---
 
-<div aria-hidden='true' class:list={['justify-center gap-2 text-[9px] leading-none text-muted-foreground', className]}>
-	{
-		channels.map((channel) => (
-			<div class='flex w-3 flex-col gap-1.5'>
-				<div class='relative flex-1'>
-					<div class='meter meter-unlit absolute inset-0' />
-					<div
-						class='meter meter-lit absolute inset-0'
-						data-meter-channel
-						style={`--meter-duration: ${channel.duration}; --meter-delay: ${channel.delay}`}
-					/>
+<div class:list={['flex-col items-center gap-2 text-[9px] leading-none text-muted-foreground', className]}>
+	<button
+		type='button'
+		data-clip
+		aria-label='Clip light'
+		class='clip-light flex items-center gap-1 rounded px-1 py-0.5 uppercase tracking-wider'
+	>
+		<span class='clip-led h-1.5 w-1.5 rounded-full'></span>
+		clip
+	</button>
+	<div aria-hidden='true' class='flex min-h-0 flex-1 justify-center gap-2 self-stretch'>
+		{
+			channels.map((channel) => (
+				<div class='flex w-3 flex-col gap-1.5'>
+					<div class='relative flex-1'>
+						<div class='meter meter-unlit absolute inset-0' />
+						<div
+							class='meter meter-lit absolute inset-0'
+							data-meter-channel
+							style={`--meter-duration: ${channel.duration}; --meter-delay: ${channel.delay}`}
+						/>
+						<div class='meter-peak' data-meter-peak />
+					</div>
+					<span class='text-center'>{channel.label}</span>
 				</div>
-				<span class='text-center'>{channel.label}</span>
-			</div>
-		))
-	}
-	<div class='ml-1 flex flex-col justify-between pb-[15px] text-right'>
-		{scale.map((db) => <span>{db}</span>)}
+			))
+		}
+		<div class='ml-1 flex flex-col justify-between pb-[15px] text-right'>
+			{scale.map((db) => <span>{db}</span>)}
+		</div>
 	</div>
 </div>

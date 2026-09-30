@@ -1,5 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
-import { cached } from "./cache";
+import { cached, FEED_TIMEOUT } from "./cache";
 import { decodeEntities, hostname } from "./format";
 import type { SavedArticle } from "./types/reading";
 
@@ -11,7 +11,9 @@ interface RssItem {
 
 async function fetchSavedArticles(rssUrl: string): Promise<SavedArticle[]> {
   try {
-    const response = await fetch(rssUrl);
+    const response = await fetch(rssUrl, {
+      signal: AbortSignal.timeout(FEED_TIMEOUT),
+    });
     if (!response.ok) return [];
 
     const parser = new XMLParser({

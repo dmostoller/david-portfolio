@@ -72,11 +72,19 @@ export function crossTo(url: string, duration = 450) {
 
 /** Wires every A/B switch on the page to flip and cross over. */
 export function bindABSwitch() {
-  for (const link of document.querySelectorAll<HTMLAnchorElement>("[data-ab-switch]")) {
+  for (const link of document.querySelectorAll<HTMLAnchorElement>(
+    "[data-ab-switch]",
+  )) {
     link.dataset.origin = link.dataset.state;
     link.addEventListener("click", (event) => {
       // Let modified clicks open a new tab the normal way.
-      if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+      if (
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.button !== 0
+      )
+        return;
       event.preventDefault();
       link.dataset.state = link.dataset.state === "a" ? "b" : "a";
       crossTo(link.href);
@@ -88,8 +96,12 @@ export function bindABSwitch() {
 // mid-crossing, with the static still covering it.
 window.addEventListener("pageshow", (event) => {
   if (!event.persisted) return;
-  document.querySelectorAll("canvas[data-crossing]").forEach((canvas) => canvas.remove());
-  for (const link of document.querySelectorAll<HTMLElement>("[data-ab-switch]")) {
+  document
+    .querySelectorAll("canvas[data-crossing]")
+    .forEach((canvas) => canvas.remove());
+  for (const link of document.querySelectorAll<HTMLElement>(
+    "[data-ab-switch]",
+  )) {
     if (link.dataset.origin) link.dataset.state = link.dataset.origin;
   }
 });

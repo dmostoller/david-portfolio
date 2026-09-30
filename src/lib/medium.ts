@@ -1,4 +1,4 @@
-import { cached } from "./cache";
+import { cached, FEED_TIMEOUT } from "./cache";
 import { decodeEntities, toText, truncate } from "./format";
 
 export interface MediumPost {
@@ -19,6 +19,7 @@ async function fetchMediumPosts(username: string): Promise<MediumPost[]> {
   try {
     const response = await fetch(
       `https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@${username}`,
+      { signal: AbortSignal.timeout(FEED_TIMEOUT) },
     );
     if (!response.ok) return [];
     const data = await response.json();
@@ -26,7 +27,8 @@ async function fetchMediumPosts(username: string): Promise<MediumPost[]> {
 
     return data.items.map((item: MediumApiItem) => {
       // Medium puts a figure (sometimes with a caption) before the first paragraph.
-      const firstParagraph = /<p>([\s\S]*?)<\/p>/.exec(item.description ?? "")?.[1] ?? "";
+      const firstParagraph =
+        /<p>([\s\S]*?)<\/p>/.exec(item.description ?? "")?.[1] ?? "";
       return {
         title: decodeEntities(item.title),
         href: item.link.split("?")[0],
@@ -39,4 +41,7 @@ async function fetchMediumPosts(username: string): Promise<MediumPost[]> {
   }
 }
 
-export const getMediumPosts = cached(() => fetchMediumPosts("dmostoller"), 10 * 60_000);
+export const getMediumPosts = cached(
+  () => fetchMediumPosts("dmostoller"),
+  10 * 60_000,
+);

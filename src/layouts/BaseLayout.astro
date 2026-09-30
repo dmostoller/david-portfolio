@@ -62,9 +62,13 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 
 		<!-- Apply the saved theme before first paint to avoid a flash. -->
 		<script is:inline>
-			const theme =
-				localStorage.getItem('theme') ||
-				(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			let saved = null;
+			try {
+				saved = localStorage.getItem('theme');
+			} catch {
+				// Storage can be blocked; fall back to the system setting.
+			}
+			const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 			document.documentElement.classList.toggle('dark', theme === 'dark');
 		</script>
 	</head>
@@ -83,7 +87,10 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 			<div class='flex items-center justify-between gap-2'>
 				<Wordmark
 					{...wordmarkProps}
-					class:list={['wordmark shrink-0 py-2 text-sm font-semibold tracking-tight text-foreground', onHome && 'invisible']}
+					class:list={[
+						'wordmark shrink-0 py-2 text-sm font-semibold tracking-tight text-foreground',
+						onHome && 'invisible',
+					]}
 				>
 					<span class='sm:hidden'>DM</span>
 					<span class='hidden sm:inline'>David Mostoller</span>
@@ -103,7 +110,9 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 										]}
 									>
 										{item.label}
-										{active && <span class='nav-indicator absolute inset-x-2 sm:inset-x-3 -bottom-px h-px bg-primary' />}
+										{active && (
+											<span class='nav-indicator absolute inset-x-2 sm:inset-x-3 -bottom-px h-px bg-primary' />
+										)}
 									</a>
 								);
 							})

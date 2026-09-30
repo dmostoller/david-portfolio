@@ -9,11 +9,12 @@ export const GET: APIRoute = async ({ request }) => {
   // Split on em dash (—) or en dash (–), not hyphens to avoid false splits
   const titleParts = rawTitle.split(/\s*[—–]\s*/);
   const isHomePage =
-    rawTitle === "David Mostoller" ||
-    titleParts[0] === "David Mostoller";
+    rawTitle === "David Mostoller" || titleParts[0] === "David Mostoller";
 
   const title = isHomePage ? "David Mostoller" : titleParts[0];
-  const subtitle = isHomePage ? titleParts[1] || "Senior Software Engineer" : null;
+  const subtitle = isHomePage
+    ? titleParts[1] || "Senior Software Engineer"
+    : null;
 
   // For home page, split name into two lines
   const [firstName, lastName] = isHomePage
