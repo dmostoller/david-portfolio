@@ -1,113 +1,166 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SocialLinks from '../components/sections/SocialLinks';
+import Section from '../components/signal/Section.astro';
 import headshot from '../assets/headshot.jpg';
+import { email, focus, parallelTrack, path, socials, stack } from '../content/profile';
+import Icon from '../components/ui/Icon.astro';
 
 export const prerender = true;
+
+// Most recent first. The parallel track sits beside the rows it overlapped
+// on wider screens and inline after them on phones.
+const timeline = [...path].reverse();
+const rows = parallelTrack.alongside.map((id) => timeline.findIndex((s) => s.id === id) + 1);
+const trackRows = `${Math.min(...rows)} / span ${Math.max(...rows) - Math.min(...rows) + 1}`;
+const trackAfter = timeline[Math.min(...rows) - 1]?.id;
+// The last row has no bottom padding, so a track ending there shouldn't either.
+const trackReachesEnd = Math.max(...rows) === timeline.length;
 ---
 
-<BaseLayout title='David Mostoller — Software Engineer'>
-	<article class='space-y-12'>
-		<!-- Hero Section -->
-		<header class='flex flex-col sm:flex-row sm:items-center gap-6' transition:animate='slide'>
-			<Image
-				src={headshot}
-				alt='David Mostoller'
-				width={224}
-				height={224}
-				densities={[1, 2]}
-				format='webp'
-				class='w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover ring-2 ring-border shadow-lg'
-			/>
-			<div class='space-y-2'>
-				<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>David Mostoller</h1>
-				<p class='text-muted-foreground text-lg'>Software Engineer · Builder · Musician</p>
+<BaseLayout page='home'>
+	<article class='rise space-y-14'>
+		<header>
+			<div class='flex flex-col sm:flex-row sm:items-center gap-5'>
+				<Image
+					src={headshot}
+					alt='David Mostoller'
+					width={192}
+					height={192}
+					densities={[1, 2]}
+					format='webp'
+					loading='eager'
+					fetchpriority='high'
+					class='w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-1 ring-border'
+				/>
+				<div class='space-y-1'>
+					<h1 class='text-3xl sm:text-4xl font-semibold tracking-tight'>David Mostoller</h1>
+					<p class='text-muted-foreground'>Senior Software Engineer · Network Security</p>
+				</div>
 			</div>
 		</header>
 
-		<!-- Bio -->
-		<section class='prose-minimal space-y-4' transition:animate='fade'>
+		<section class='prose-minimal space-y-4'>
 			<p>
-				I'm a full-stack software engineer who believes that the design of impactful web technologies emerges
-				from iterative, team collaborations. I'm currently building with TypeScript, React, Tanstack, and
-				Python.
+				I'm a senior software engineer on Comcast's DDoS Mitigation Services team, building the internal tools,
+				intelligence platforms, and automation that security engineers use to protect one of the largest networks in the
+				U.S.
 			</p>
 			<p>
-				Outside of software, I produce electronic music as <a
-					href='https://kabayun.com'
-					target='_blank'
-					rel='noopener noreferrer'>Kabayun</a
-				> and <a href='https://superluminalpsy.com' target='_blank' rel='noopener noreferrer'>Superluminal</a
+				Outside of software, I produce electronic music as <a href='https://kabayun.com'>Kabayun</a> and <a
+					href='https://superluminalpsy.com'>Superluminal</a
 				>, drawing on a background in audio engineering and music technology.
 			</p>
-			<p>
-				When I'm not coding or making music, you'll often find me on my bicycle or lost in a sci-fi novel.
-			</p>
+			<p>When I'm not coding or making music, you'll often find me on my bicycle or lost in a sci-fi novel.</p>
 		</section>
 
-		<!-- Skills -->
-		<section class='pt-8 border-t border-border' transition:animate='fade'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Skills</h2>
-			<div class='flex flex-wrap gap-2'>
+		<Section label='What I do' aside='Comcast · 2025 – now'>
+			<ul class='reveal space-y-6'>
 				{
-					[
-						'TypeScript',
-						'JavaScript',
-						'Python',
-						'React',
-						'Tanstack',
-						'Next.js',
-						'Astro',
-						'Tailwind CSS',
-						'Shadcn/ui',
-						'GraphQL',
-						'PostgreSQL',
-						'SQLite',
-						'AWS',
-						'Django',
-						'Flask',
-						'Node.js',
-						'Prisma',
-						'REST APIs',
-						'Git',
-						'CI/CD',
-						'Docker',
-					].map((skill) => (
-						<span class='text-sm px-3 py-1 bg-muted text-muted-foreground rounded-md'>{skill}</span>
+					focus.map((item) => (
+						<li class='grid sm:grid-cols-[11rem_1fr] gap-1 sm:gap-6'>
+							<h3 class='text-sm font-medium text-foreground'>{item.title}</h3>
+							<p class='text-sm text-muted-foreground leading-relaxed'>{item.body}</p>
+						</li>
 					))
 				}
-			</div>
-		</section>
+			</ul>
+		</Section>
 
-		<!-- Current Role -->
-		<section class='pt-8 border-t border-border' transition:animate='fade'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Current Role</h2>
-			<div class='border-l-2 border-primary pl-4'>
-				<h3 class='font-medium text-foreground'>Software Engineer</h3>
-				<p class='text-sm text-muted-foreground'>Comcast · 2025 - Present</p>
-				<p class='text-sm text-muted-foreground mt-2'>
-					Developing full-stack cybersecurity applications that support enterprise-scale network protection.
-				</p>
-			</div>
-		</section>
+		<Section label='Path'>
+			<!-- A fade only, so the line through the steps never breaks. -->
+			<ol class='reveal [--reveal-shift:0px] grid sm:grid-cols-[1fr_11rem] sm:gap-x-6 ml-1'>
+				{
+					timeline.map((step, i) => (
+						<>
+							<li
+								class:list={[
+									'relative pl-6 border-l border-border',
+									parallelTrack.alongside.includes(step.id) ? 'sm:col-start-1' : 'sm:col-span-2',
+									i < timeline.length - 1 && 'pb-6',
+								]}
+							>
+								<span
+									class:list={[
+										'absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full',
+										step.current ?
+											'live-dot bg-primary ring-4 ring-primary/15'
+										:	'bg-background border border-muted-foreground/60',
+									]}
+								/>
+								<div class='flex items-baseline justify-between gap-4'>
+									<h3 class='text-sm font-medium text-foreground'>{step.title}</h3>
+									{step.when && <span class='shrink-0 font-mono text-xs text-muted-foreground'>{step.when}</span>}
+								</div>
+								{step.detail && <p class='text-sm text-muted-foreground'>{step.detail}</p>}
+							</li>
+							{step.id === trackAfter && (
+								<li
+									class:list={[
+										'relative pl-6 pb-6 border-l border-border sm:border-l-0 sm:pl-0 sm:col-start-2 sm:[grid-row:var(--rows)]',
+										trackReachesEnd && 'sm:pb-0',
+									]}
+									style={`--rows: ${trackRows}`}
+								>
+									<div class='h-full border-l border-dashed border-primary/60 pl-4'>
+										<p class='font-mono text-[10px] uppercase tracking-widest text-primary'>in parallel</p>
+										<h3 class='mt-1 text-sm font-medium text-foreground'>{parallelTrack.title}</h3>
+										<p class='text-sm text-muted-foreground'>{parallelTrack.detail}</p>
+									</div>
+								</li>
+							)}
+						</>
+					))
+				}
+			</ol>
+		</Section>
 
-		<!-- Education -->
-		<section class='pt-8 border-t border-border' transition:animate='fade'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider mb-4'>Education</h2>
-			<div class='space-y-4'>
-				<div class='border-l-2 border-primary pl-4'>
-					<h3 class='font-medium text-foreground'>Wesleyan University</h3>
-					<p class='text-sm text-muted-foreground'>B.A. Government</p>
+		<Section label='Stack'>
+			<dl class='reveal space-y-3'>
+				{
+					stack.map((group) => (
+						<div class='grid grid-cols-[6.5rem_1fr] gap-4 text-sm'>
+							<dt class='font-mono text-xs uppercase tracking-wider text-muted-foreground pt-0.5'>{group.label}</dt>
+							<dd class:list={[group.label === 'Security' ? 'text-foreground' : 'text-muted-foreground']}>
+								{group.items.join(' · ')}
+							</dd>
+						</div>
+					))
+				}
+			</dl>
+		</Section>
+
+		<Section label='Contact'>
+			<div class='flex flex-wrap items-center gap-3'>
+				<a
+					href={`mailto:${email}`}
+					class='press inline-flex items-center gap-2 rounded-md bg-foreground text-background px-4 py-2 text-sm font-medium hover:opacity-90 transition-opacity'
+				>
+					<Icon name='mail' size={16} />
+					Get in touch
+				</a>
+				<button
+					type='button'
+					data-copy={email}
+					class='press inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 font-mono text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
+				>
+					<Icon name='copy' size={14} />
+					<span data-copy-label>{email}</span>
+				</button>
+				<div class='flex items-center gap-1 sm:ml-auto'>
+					{
+						socials.map((s) => (
+							<a
+								href={s.href}
+								aria-label={s.label}
+								class='press p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors'
+							>
+								<Icon name={s.icon} size={18} />
+							</a>
+						))
+					}
 				</div>
-				<div class='border-l-2 border-primary pl-4'>
-					<h3 class='font-medium text-foreground'>Flatiron School</h3>
-					<p class='text-sm text-muted-foreground'>Software Engineering</p>
-				</div>
 			</div>
-		</section>
-
-		<!-- Social Links -->
-		<SocialLinks client:visible />
+		</Section>
 	</article>
 </BaseLayout>

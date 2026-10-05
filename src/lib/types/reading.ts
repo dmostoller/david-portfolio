@@ -13,5 +13,4 @@ export interface SavedArticle {
   link: string;
   pubDate: string;
   source: string;
-  description?: string;
 }
