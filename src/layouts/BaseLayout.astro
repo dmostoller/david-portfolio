@@ -1,29 +1,33 @@
 ---
-import { ClientRouter } from 'astro:transitions';
-import { Analytics } from '@vercel/analytics/react';
+// The site's layout: SEO meta, fonts, theme, background, header, and footer.
+import Analytics from '@vercel/analytics/astro';
+import ThemeToggle from '../components/ui/ThemeToggle.astro';
 import StripedBackground from '../components/ui/StripedBackground.astro';
-import Header from '../components/layout/Header.astro';
-import Footer from '../components/layout/Footer.astro';
+import Radar from '../components/ui/Radar.astro';
+import { pageMeta, pages, signalHref, type Page } from '../lib/routes';
 import '../styles/global.css';
 
 interface Props {
-	title: string;
-	description?: string;
-	ogImage?: string;
+	page: Page;
 }
 
-const {
-	title,
-	description = 'Software engineer building thoughtful digital experiences.',
-	ogImage,
-} = Astro.props;
+const { page } = Astro.props;
+const { title, description } = pageMeta(page);
+const nav = pages.filter((p) => p.id !== 'home');
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL =
-	ogImage || new URL(`/api/og.png?title=${encodeURIComponent(title)}`, Astro.site).toString();
+const ogImageURL = new URL(`/api/og.png?title=${encodeURIComponent(title)}`, Astro.site).toString();
+const year = new Date().getFullYear();
+
+// The homepage already leads with the name, so the header wordmark is hidden
+// there. It still renders (invisibly) so the header keeps the same size and
+// nothing shifts between pages.
+const onHome = page === 'home';
+const Wordmark = onHome ? 'span' : 'a';
+const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('home') };
 ---
 
 <!doctype html>
-<html lang='en' class='scroll-smooth'>
+<html lang='en'>
 	<head>
 		<meta charset='UTF-8' />
 		<meta name='viewport' content='width=device-width, initial-scale=1' />
@@ -33,112 +37,258 @@ const ogImageURL =
 		<link rel='manifest' href='/site.webmanifest' />
 		<link rel='canonical' href={canonicalURL} />
 
-		<!-- Fonts (async load to prevent render blocking) -->
 		<link rel='preconnect' href='https://fonts.googleapis.com' />
 		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
 		<link
-			href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap'
+			href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&display=swap'
 			rel='stylesheet'
-			media='print'
-			onload="this.media='all'"
 		/>
-		<noscript>
-			<link
-				href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap'
-				rel='stylesheet'
-			/>
-		</noscript>
 
-		<!-- SEO -->
 		<title>{title}</title>
 		<meta name='description' content={description} />
 
-		<!-- Open Graph -->
 		<meta property='og:title' content={title} />
 		<meta property='og:description' content={description} />
 		<meta property='og:image' content={ogImageURL} />
 		<meta property='og:url' content={canonicalURL} />
 		<meta property='og:type' content='website' />
 
-		<!-- Twitter -->
 		<meta name='twitter:card' content='summary_large_image' />
 		<meta name='twitter:title' content={title} />
 		<meta name='twitter:description' content={description} />
 		<meta name='twitter:image' content={ogImageURL} />
 
-		<!-- View Transitions -->
-		<ClientRouter />
-
+		<!-- Apply the saved theme before first paint to avoid a flash. -->
 		<script is:inline>
-			document.addEventListener('astro:after-swap', () => {
-				const main = document.getElementById('main-content');
-				if (main) {
-					window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-					main.focus({ preventScroll: true });
-				}
-			});
-		</script>
-
-		<!-- Dark mode script (prevent flash + persist across View Transitions) -->
-		<script is:inline>
-			function applyTheme() {
-				const theme =
-					localStorage.getItem('theme') ||
-					(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-				document.documentElement.classList.toggle('dark', theme === 'dark');
+			let saved = null;
+			try {
+				saved = localStorage.getItem('theme');
+			} catch {
+				// Storage can be blocked; fall back to the system setting.
 			}
-			// Apply on initial load
-			applyTheme();
-			// Re-apply after View Transitions page swap
-			document.addEventListener('astro:after-swap', applyTheme);
-		</script>
-
-		<!-- Button press animation -->
-		<script>
-			const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-			if (!prefersReducedMotion) {
-				const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
-				let pressedEl: Element | null = null;
-
-				function handlePress(e: PointerEvent) {
-					const el = (e.target as Element)?.closest('a, button, [role="button"]');
-					if (!el || el.hasAttribute('disabled')) return;
-					pressedEl = el;
-					el.animate(
-						{ transform: ['scale(1)', 'scale(0.97)'] },
-						{ duration: 100, easing: ease, fill: 'forwards' }
-					);
-				}
-
-				function handleRelease() {
-					if (!pressedEl) return;
-					pressedEl.animate(
-						{ transform: ['scale(0.97)', 'scale(1)'] },
-						{ duration: 150, easing: ease, fill: 'forwards' }
-					);
-					pressedEl = null;
-				}
-
-				document.addEventListener('pointerdown', handlePress);
-				document.addEventListener('pointerup', handleRelease);
-				document.addEventListener('pointercancel', handleRelease);
-				document.addEventListener('pointerleave', handleRelease);
-			}
+			const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			document.documentElement.classList.toggle('dark', theme === 'dark');
 		</script>
 	</head>
 	<body class='min-h-screen flex flex-col bg-background text-foreground'>
-		<StripedBackground class='opacity-[0.06] text-foreground' transition:persist />
 		<a
 			href='#main-content'
-			class='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-6 focus:py-3 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:font-medium focus:shadow-lg'
+			class='sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-foreground focus:text-background focus:px-4 focus:py-2 focus:text-sm'
 		>
-			Skip to main content
+			Skip to content
 		</a>
-		<Header />
-		<main id='main-content' tabindex='-1' class='flex-1 w-full max-w-170 mx-auto px-6 py-12 md:py-20'>
+
+		<StripedBackground class='opacity-[0.06] text-foreground' />
+		<Radar />
+
+		<header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
+			<div class='flex items-center justify-between gap-2'>
+				<Wordmark
+					{...wordmarkProps}
+					class:list={[
+						'wordmark shrink-0 py-2 text-sm font-semibold tracking-tight text-foreground',
+						onHome && 'invisible',
+					]}
+				>
+					<span class='sm:hidden'>DM</span>
+					<span class='hidden sm:inline'>David Mostoller</span>
+				</Wordmark>
+				<div class='ml-auto flex items-center'>
+					<nav aria-label='Main navigation' class='flex items-center'>
+						{
+							nav.map((item) => {
+								const active = item.id === page;
+								return (
+									<a
+										href={signalHref(item.id)}
+										aria-current={active ? 'page' : undefined}
+										class:list={[
+											'press relative px-2 sm:px-3 py-2 text-sm transition-colors',
+											active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+										]}
+									>
+										{item.label}
+										{active && (
+											<span class='nav-indicator absolute inset-x-2 sm:inset-x-3 -bottom-px h-px bg-primary' />
+										)}
+									</a>
+								);
+							})
+						}
+					</nav>
+					<ThemeToggle />
+				</div>
+			</div>
+		</header>
+
+		<main id='main-content' class='flex-1 w-full max-w-170 mx-auto px-6 py-12 md:py-16'>
 			<slot />
 		</main>
-		<Footer />
-		<Analytics client:load />
+
+		<footer class='w-full max-w-170 mx-auto px-6 pb-12 mt-auto'>
+			<div
+				class='pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-muted-foreground'
+			>
+				<p>&copy; {year} David Mostoller</p>
+				<p>
+					Built with{' '}
+					<a href='https://astro.build' class='hover:text-foreground transition-colors'>Astro</a>
+				</p>
+			</div>
+		</footer>
+
+		<Analytics />
+
+		<script>
+			for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+				button.addEventListener('click', async () => {
+					const label = button.querySelector('[data-copy-label]') ?? button;
+					const original = label.textContent;
+					try {
+						await navigator.clipboard.writeText(button.dataset.copy ?? '');
+						label.textContent = 'copied';
+					} catch {
+						label.textContent = 'copy failed';
+					}
+					setTimeout(() => (label.textContent = original), 1500);
+				});
+			}
+		</script>
 	</body>
 </html>
+
+<style is:global>
+	/* Page to page (where supported): the header and footer stay put, the nav
+	   underline slides over, the old page's content fades out, and the new
+	   page's content rises in (.rise). */
+	@view-transition {
+		navigation: auto;
+	}
+	#main-content {
+		view-transition-name: page;
+	}
+	.nav-indicator {
+		view-transition-name: nav-indicator;
+	}
+	.wordmark {
+		view-transition-name: wordmark;
+	}
+	::view-transition-group(nav-indicator) {
+		animation-duration: 400ms;
+		animation-timing-function: var(--ease-out);
+	}
+	/* The content fades out where it is instead of sliding from the old page's
+	   position to the new one's. */
+	::view-transition-group(page) {
+		animation: none;
+	}
+	::view-transition-old(page) {
+		animation: page-out 150ms ease-out both;
+		mix-blend-mode: normal;
+	}
+	::view-transition-new(page) {
+		animation: none;
+		mix-blend-mode: normal;
+	}
+	@keyframes page-out {
+		to {
+			opacity: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: no-preference) {
+		/* A page's blocks rise in one after another. */
+		.rise > * {
+			animation: rise 700ms var(--ease-out) backwards;
+		}
+		.rise > :nth-child(2) {
+			animation-delay: 60ms;
+		}
+		.rise > :nth-child(3) {
+			animation-delay: 120ms;
+		}
+		.rise > :nth-child(4) {
+			animation-delay: 180ms;
+		}
+		.rise > :nth-child(n + 5) {
+			animation-delay: 240ms;
+		}
+
+		/* Buttons press in slightly. This sits outside Tailwind's layers so it
+		   adds scale to the transition-colors property list instead of losing to it. */
+		.press {
+			transition-property: color, background-color, border-color, opacity, scale;
+			transition-duration: 150ms;
+			transition-timing-function: var(--ease-out);
+		}
+		.press:active {
+			scale: 0.97;
+		}
+
+		/* "Now" markers ping, like the radar. */
+		.live-dot::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: 9999px;
+			background: var(--primary);
+			animation: live-ping 3s var(--ease-out) infinite;
+		}
+
+		/* External-link arrows lean out on hover. */
+		.arrow {
+			display: inline-block;
+			transition: translate 150ms var(--ease-out);
+		}
+		.group:focus-visible .arrow {
+			translate: 2px -2px;
+		}
+		@media (hover: hover) {
+			.group:hover .arrow {
+				translate: 2px -2px;
+			}
+		}
+	}
+
+	/* List items fade up as they scroll into view. Browsers without scroll-driven
+	   animations just show them. Set --reveal-shift: 0px for a fade only. */
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.reveal > * {
+				animation: reveal linear backwards;
+				animation-timeline: view();
+				animation-range: entry 0% entry 100%;
+			}
+		}
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			translate: 0 10px;
+		}
+	}
+	@keyframes reveal {
+		from {
+			opacity: 0;
+			translate: 0 var(--reveal-shift, 12px);
+		}
+	}
+	@keyframes live-ping {
+		from {
+			opacity: 0.45;
+			scale: 1;
+		}
+		60%,
+		to {
+			opacity: 0;
+			scale: 3;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		@view-transition {
+			navigation: none;
+		}
+	}
+</style>

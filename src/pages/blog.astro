@@ -1,74 +1,70 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import BlogPostPreview from '../components/sections/BlogPostPreview';
-import PressArticlePreview from '../components/sections/PressArticlePreview';
+import PageHeader from '../components/signal/PageHeader.astro';
+import Section from '../components/signal/Section.astro';
+import { feedCacheControl, press } from '../lib/content';
+import { formatDate } from '../lib/format';
 import { getMediumPosts } from '../lib/medium';
-import press from '../content/press.json';
+import { pageMeta } from '../lib/routes';
 
-export const prerender = true;
+// Rendered on request and cached at the CDN, so new posts show up without a redeploy.
+export const prerender = false;
 
-const posts = await getMediumPosts('dmostoller');
+const posts = await getMediumPosts();
+Astro.response.headers.set('Cache-Control', feedCacheControl(posts.length > 0));
 ---
 
-<BaseLayout
-	title='Writing — David Mostoller'
-	description='Published work and thoughts on software, design, and building things.'
->
-	<section class='space-y-12'>
-		<header class='space-y-2'>
-			<h1 class='text-2xl sm:text-3xl font-semibold text-foreground tracking-tight'>Writing</h1>
-			<p class='text-muted-foreground'>
-				Published work and thoughts on software, design, and building things.
-			</p>
-		</header>
+<BaseLayout page='blog'>
+	<div class='rise space-y-14'>
+		<PageHeader title='Writing' description={pageMeta('blog').description} />
 
-		<div class='space-y-4'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider'>Published</h2>
-			<div class='space-y-1'>
+		<Section label='Published' divider={false}>
+			<ul class='reveal space-y-6'>
 				{
-					press.map((article, index) => (
-						<PressArticlePreview
-							client:visible
-							title={article.title}
-							publication={article.publication}
-							url={article.url}
-							date={article.date}
-							description={article.description}
-							index={index}
-						/>
+					press.map((a) => (
+						<li>
+							<a href={a.url} class='group block'>
+								<h3 class='font-medium text-foreground group-hover:text-primary transition-colors'>{a.title}</h3>
+								<p class='mt-1 text-sm text-muted-foreground leading-relaxed'>{a.description}</p>
+								<p class='mt-2 font-mono text-xs text-muted-foreground'>
+									<span class='text-foreground'>{a.publication}</span> · {formatDate(a.date)}
+								</p>
+							</a>
+						</li>
 					))
 				}
-			</div>
-		</div>
+			</ul>
+		</Section>
 
-		<div class='space-y-4'>
-			<h2 class='text-sm font-medium text-muted-foreground uppercase tracking-wider'>Blog</h2>
-			<div class='space-y-1'>
-				{
-					posts.length > 0 ?
-						posts.map((post, index) => (
-							<BlogPostPreview
-								client:visible
-								title={post.title}
-								href={post.link}
-								date={post.pubDate}
-								description={post.description ?? ''}
-								index={index}
-							/>
-						))
-					:	<p class='text-muted-foreground py-8'>No posts yet. Check back soon!</p>
-				}
-			</div>
-
-			<a
-				href='https://medium.com/@dmostoller'
-				target='_blank'
-				rel='noopener noreferrer'
-				class='inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors'
-			>
-				View all posts on Medium
-				<span>&rarr;</span>
-			</a>
-		</div>
-	</section>
+		<Section label='Blog' aside='Medium'>
+			{
+				posts.length === 0 ?
+					<p class='py-4 text-sm text-muted-foreground'>Posts couldn't be loaded right now.</p>
+				:	<ul class='reveal space-y-7'>
+						{posts.map((post) => (
+							<li>
+								<a href={post.href} class='group grid sm:grid-cols-[1fr_auto] gap-x-6 gap-y-1'>
+									<h3 class='font-medium text-foreground group-hover:text-primary transition-colors'>{post.title}</h3>
+									<time
+										datetime={post.date}
+										class='sm:row-span-2 sm:text-right font-mono text-xs text-muted-foreground sm:pt-1 order-first sm:order-none'
+									>
+										{formatDate(post.date)}
+									</time>
+									<p class='text-sm text-muted-foreground leading-relaxed line-clamp-2'>{post.excerpt}</p>
+								</a>
+							</li>
+						))}
+					</ul>
+			}
+			<p class='mt-8 text-sm'>
+				<a
+					href='https://medium.com/@dmostoller'
+					class='group text-muted-foreground hover:text-primary transition-colors'
+				>
+					All posts on Medium <span class='arrow'>↗</span>
+				</a>
+			</p>
+		</Section>
+	</div>
 </BaseLayout>

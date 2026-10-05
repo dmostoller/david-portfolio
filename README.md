@@ -6,7 +6,7 @@ Personal portfolio site showcasing projects, writing, and reading.
 
 ## Stack
 
-Astro 5 · React 19 · Tailwind v4 · Framer Motion · Vercel
+Astro 5 · Tailwind v4 · Vercel
 
 ## Features
 

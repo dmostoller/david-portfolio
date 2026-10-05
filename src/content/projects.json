@@ -9,7 +9,17 @@
   {
     "title": "Private Video Course Platform",
     "description": "A secure platform for selling video courses and webinars with gated content access and private streaming.",
-    "tech": ["Next.js", "TypeScript", "PostgreSQL", "Drizzle", "Tanstack", "R2", "TailwindCSS", "shadcn/ui", "Polar"],
+    "tech": [
+      "Next.js",
+      "TypeScript",
+      "PostgreSQL",
+      "Drizzle",
+      "Tanstack",
+      "R2",
+      "TailwindCSS",
+      "shadcn/ui",
+      "Polar"
+    ],
     "github": "https://github.com/dmostoller/pvcp",
     "live": "https://kabayun-academy.com/"
   },
