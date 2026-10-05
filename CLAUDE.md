@@ -38,9 +38,9 @@ This is an Astro 5 portfolio site with hybrid rendering deployed on Vercel.
 ### Project Structure
 
 - `src/pages/` - The pages, and `api/og.png.ts`
-- `src/layouts/` - `BaseLayout.astro` (SEO meta, fonts, theme script, stripes, radar, header, footer)
+- `src/layouts/` - `BaseLayout.astro` (SEO meta, fonts, theme script, stripes, header, footer)
 - `src/components/signal/` - Section and page header
-- `src/components/ui/` - ThemeToggle, Icon (inline Lucide SVGs from `icons.ts`), StripedBackground, Radar
+- `src/components/ui/` - ThemeToggle, Icon (inline Lucide SVGs from `icons.ts`), StripedBackground
 - `src/lib/` - Routes, content helpers, formatting (UTC dates, entity decoding), feed timeouts and Cache-Control, Medium and Inoreader clients
 - `src/content/` - JSON data for projects, books, press, plus `profile.ts`
 - `src/styles/global.css` - Tailwind v4 config with CSS variables for theming
@@ -66,5 +66,4 @@ This is an Astro 5 portfolio site with hybrid rendering deployed on Vercel.
 
 - Everything is plain Astro with no hydrated islands. Don't add React or another framework; add icons by copying Lucide shapes into `src/components/ui/icons.ts`.
 - Cross-document view transitions via `@view-transition { navigation: auto; }` in BaseLayout; there's no `<ClientRouter />`. The header stays put, the nav underline slides, and `main` (`page`) fades out while the new page rises in. Theme changes drop all transition names (global.css).
-- The radar sweep is lined up with the clock (Radar.astro) so it doesn't restart on each page load.
 - Security headers configured in vercel.json including CSP

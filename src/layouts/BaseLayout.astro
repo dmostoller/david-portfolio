@@ -3,7 +3,6 @@
 import Analytics from '@vercel/analytics/astro';
 import ThemeToggle from '../components/ui/ThemeToggle.astro';
 import StripedBackground from '../components/ui/StripedBackground.astro';
-import Radar from '../components/ui/Radar.astro';
 import { pageMeta, pages, signalHref, type Page } from '../lib/routes';
 import '../styles/global.css';
 
@@ -79,7 +78,6 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 		</a>
 
 		<StripedBackground class='opacity-[0.06] text-foreground' />
-		<Radar />
 
 		<header class='w-full max-w-170 mx-auto px-6 pt-12 md:pt-20'>
 			<div class='flex items-center justify-between gap-2'>
@@ -225,7 +223,7 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 			scale: 0.97;
 		}
 
-		/* "Now" markers ping, like the radar. */
+		/* "Now" markers ping. */
 		.live-dot::after {
 			content: '';
 			position: absolute;
