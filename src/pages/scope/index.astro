@@ -1,0 +1,223 @@
+---
+// The radio: an oscilloscope off the internet, with one dial from 0 to 11 and
+// stations hidden in the static. Everything moves in src/scripts/scope/radio.ts;
+// this is the markup and the still that shows without JavaScript.
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import ABSwitch from '../../components/ui/ABSwitch.astro';
+import { arrival, DIAL_MAX, svgPath } from '../../lib/scope/stations';
+
+export const prerender = true;
+
+const numbers = Array.from({ length: DIAL_MAX + 1 }, (_, n) => n);
+const still = svgPath(arrival.draw(0.6, () => 0.5));
+---
+
+<ScopeLayout title='dbm · david mostoller'>
+	<div class='flex h-dvh flex-col'>
+		<h1 class='sr-only'>dbm: a radio, off the internet</h1>
+
+		<header class='flex h-11 shrink-0 items-center gap-3 px-4 text-[11px] text-muted-foreground sm:px-6'>
+			<span class='min-w-0 truncate'>
+				<span class='text-primary'>dbm</span> · off the internet
+				<span data-away class='tabular-nums text-foreground'>0:00</span>
+			</span>
+			<div class='ml-auto flex shrink-0 items-center gap-2'>
+				<button
+					type='button'
+					data-sound
+					aria-label='Sound'
+					aria-pressed='false'
+					class='rounded px-2 py-1 transition-colors hover:bg-muted hover:text-foreground'
+				>
+					♪ <span data-sound-label>off</span>
+				</button>
+				<ABSwitch state='b' href='/' label='A/B: back to the main site' />
+			</div>
+		</header>
+
+		<div class='relative min-h-0 flex-1 overflow-hidden'>
+			<canvas data-screen aria-hidden='true' class='absolute inset-0 h-full w-full cursor-ew-resize touch-none'
+			></canvas>
+			<noscript>
+				<svg
+					viewBox='-175 -105 350 210'
+					aria-hidden='true'
+					class='absolute inset-0 h-full w-full bg-[#050908] p-[4%]'
+					fill='none'
+					stroke='rgb(110 255 190)'
+					stroke-width='1.5'
+					stroke-linejoin='round'
+					stroke-linecap='round'
+				>
+					<path d={still} vector-effect='non-scaling-stroke'></path>
+				</svg>
+			</noscript>
+			<div aria-hidden='true' class='glass pointer-events-none absolute inset-0'></div>
+		</div>
+
+		<div class='shrink-0 border-t border-border px-4 pt-3 pb-4 sm:px-6'>
+			<div class='mx-auto max-w-4xl'>
+				<p class='flex min-h-8 flex-wrap items-baseline gap-x-3 gap-y-1'>
+					<span data-frequency class='text-2xl tabular-nums text-foreground'
+						>{arrival.at.toFixed(1).padStart(4, '0')}</span
+					>
+					<span data-name class='text-primary'>{arrival.name}</span>
+					<span data-caption class='min-w-0 text-muted-foreground'>{arrival.caption}</span>
+					<span data-logged class='logged ml-auto text-[11px] text-muted-foreground'>tune to find the rest</span>
+				</p>
+
+				<div class='mt-3 px-1'>
+					<div data-marks class='relative h-2'></div>
+					<div class='relative'>
+						<div aria-hidden='true' class='dial-scale absolute inset-x-0 bottom-0 h-3'></div>
+						<input
+							data-dial
+							type='range'
+							min='0'
+							max={DIAL_MAX}
+							step='any'
+							value={arrival.at}
+							aria-label='Tuning dial, 0 to 11'
+							class='dial relative block w-full'
+						/>
+					</div>
+					<div aria-hidden='true' class='relative mt-1 h-4 text-[10px] text-muted-foreground'>
+						{
+							numbers.map((n) => (
+								<span class='dial-number' style={`--at: ${n / DIAL_MAX}`}>
+									{n}
+								</span>
+							))
+						}
+					</div>
+				</div>
+
+				<p class='mt-2 text-[11px] text-muted-foreground'>
+					<span class='hidden sm:inline'>drag the screen or use ← → to tune · [ ] to skip · esc to leave</span>
+					<span class='sm:hidden'>drag the screen to tune</span>
+				</p>
+				<noscript>
+					<p class='mt-2 text-[11px] text-muted-foreground'>the radio needs javascript to tune.</p>
+				</noscript>
+			</div>
+		</div>
+
+		<p data-announce role='status' class='sr-only'></p>
+	</div>
+</ScopeLayout>
+
+<script>
+	import '../../scripts/scope/radio';
+</script>
+
+<style>
+	/* The tube's glass: darker corners and faint scanlines over the beam. */
+	.glass {
+		background:
+			radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.45) 100%),
+			repeating-linear-gradient(to bottom, transparent 0 2px, rgb(0 0 0 / 0.16) 2px 3px);
+	}
+
+	/* The dial is a range input dressed as a tuning scale: ticks behind it,
+	   and the thumb drawn as the needle. */
+	.dial-scale {
+		background-image:
+			linear-gradient(to right, var(--muted-foreground) 1px, transparent 1px),
+			linear-gradient(to right, var(--border) 1px, transparent 1px);
+		background-size:
+			calc((100% - 1px) / 11) 100%,
+			calc((100% - 1px) / 22) 50%;
+		background-position: left bottom;
+		background-repeat: repeat-x;
+	}
+	.dial {
+		--needle: oklch(0.72 0.19 35);
+		height: 2.25rem;
+		appearance: none;
+		background: transparent;
+		cursor: ew-resize;
+	}
+	.dial::-webkit-slider-runnable-track {
+		height: 100%;
+		background: transparent;
+	}
+	.dial::-moz-range-track {
+		height: 100%;
+		background: transparent;
+	}
+	.dial::-webkit-slider-thumb {
+		width: 2px;
+		height: 2.25rem;
+		appearance: none;
+		border: 0;
+		border-radius: 1px;
+		background: var(--needle);
+		box-shadow: 0 0 8px color-mix(in oklch, var(--needle) 60%, transparent);
+	}
+	.dial::-moz-range-thumb {
+		width: 2px;
+		height: 2.25rem;
+		border: 0;
+		border-radius: 1px;
+		background: var(--needle);
+		box-shadow: 0 0 8px color-mix(in oklch, var(--needle) 60%, transparent);
+	}
+	.dial:focus-visible {
+		outline: 1px solid var(--primary);
+		outline-offset: 4px;
+		border-radius: 2px;
+	}
+	.dial-number {
+		position: absolute;
+		left: calc(var(--at) * (100% - 1px));
+		translate: -50% 0;
+	}
+
+	.logged[data-bumped] {
+		animation: logged 900ms ease-out;
+	}
+	[data-sound][data-invite] {
+		animation: invite 2.4s ease-in-out infinite;
+	}
+	@keyframes invite {
+		50% {
+			color: var(--primary);
+		}
+	}
+	@keyframes logged {
+		0% {
+			color: var(--primary);
+		}
+		100% {
+			color: var(--muted-foreground);
+		}
+	}
+
+	/* Made in radio.ts, so these can't rely on scoped class names. */
+	:global(.dial-mark) {
+		position: absolute;
+		bottom: 1px;
+		left: calc(var(--at) * (100% - 1px));
+		width: 5px;
+		height: 5px;
+		translate: -50% 0;
+		border-radius: 999px;
+		background: var(--primary);
+	}
+	:global(.radio-link) {
+		color: var(--foreground);
+		text-decoration: underline;
+		text-decoration-color: color-mix(in oklch, var(--primary) 50%, transparent);
+		text-underline-offset: 3px;
+	}
+	:global(.radio-link:hover) {
+		text-decoration-color: var(--primary);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.logged[data-bumped],
+		[data-sound][data-invite] {
+			animation: none;
+		}
+	}
+</style>

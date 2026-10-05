@@ -1,0 +1,41 @@
+---
+// Scope's 404: any unknown path under /scope is dead air.
+import ScopeLayout from '../../layouts/ScopeLayout.astro';
+import { scopeHref } from '../../lib/routes';
+
+export const prerender = false;
+
+const missing = Astro.params.missing ?? '';
+Astro.response.status = 404;
+---
+
+<ScopeLayout title='dbm · dead air' missing>
+	<main class='relative grid h-dvh place-items-center overflow-hidden px-6'>
+		<canvas
+			data-dead-air
+			aria-hidden='true'
+			class='absolute inset-0 h-full w-full opacity-30 [image-rendering:pixelated]'></canvas>
+		<div class='relative max-w-md rounded-md bg-background/85 px-6 py-5 text-center'>
+			<h1 class='text-3xl tracking-tight text-foreground sm:text-4xl'>
+				dead air<span class='text-primary'>.</span>
+			</h1>
+			<p class='mt-3 text-muted-foreground'>Nothing broadcasts at ~/{missing}.</p>
+			<a
+				href={scopeHref}
+				class='mt-6 inline-block rounded border border-primary/60 bg-background/80 px-3 py-1.5 text-primary transition-colors hover:bg-primary hover:text-background'
+			>
+				tune back to dbm
+			</a>
+		</div>
+	</main>
+</ScopeLayout>
+
+<script>
+	import { paintStatic } from '../../scripts/crossing';
+
+	const canvas = document.querySelector<HTMLCanvasElement>('[data-dead-air]');
+	const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	// With reduced motion, one frame of static that holds still.
+	const play = (): unknown => canvas && paintStatic(canvas, still ? 0 : 60_000).then(() => !still && play());
+	play();
+</script>

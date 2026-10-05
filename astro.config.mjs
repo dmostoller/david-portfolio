@@ -9,7 +9,10 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   site: "https://www.davidmostoller.com",
   trailingSlash: "never",
-  integrations: [sitemap()],
+  integrations: [
+    // Scope (/scope) is the hidden alternate design; search engines only get Signal.
+    sitemap({ filter: (page) => !new URL(page).pathname.startsWith("/scope") }),
+  ],
   output: "server",
   adapter: vercel(),
   vite: {

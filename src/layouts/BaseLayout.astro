@@ -1,9 +1,11 @@
 ---
-// The site's layout: SEO meta, fonts, theme, background, header, and footer.
+// Signal, the main design. Scope (layouts/ScopeLayout.astro), a hidden radio at
+// /scope, is reached through the A/B switch in the footer.
 import Analytics from '@vercel/analytics/astro';
 import ThemeToggle from '../components/ui/ThemeToggle.astro';
 import StripedBackground from '../components/ui/StripedBackground.astro';
-import { pageMeta, pages, signalHref, type Page } from '../lib/routes';
+import ABSwitch from '../components/ui/ABSwitch.astro';
+import { pageMeta, pages, scopeHref, signalHref, type Page } from '../lib/routes';
 import '../styles/global.css';
 
 interface Props {
@@ -128,16 +130,23 @@ const wordmarkProps = onHome ? { 'aria-hidden': true } : { href: signalHref('hom
 				class='pt-6 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm text-muted-foreground'
 			>
 				<p>&copy; {year} David Mostoller</p>
-				<p>
-					Built with{' '}
-					<a href='https://astro.build' class='hover:text-foreground transition-colors'>Astro</a>
-				</p>
+				<div class='flex items-center gap-4'>
+					<p>
+						Built with{' '}
+						<a href='https://astro.build' class='hover:text-foreground transition-colors'>Astro</a>
+					</p>
+					<ABSwitch state='a' href={scopeHref} label='A/B: switch to the alternate version of this site' />
+				</div>
 			</div>
 		</footer>
 
 		<Analytics />
 
 		<script>
+			import { bindABSwitch } from '../scripts/crossing';
+
+			bindABSwitch();
+
 			for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
 				button.addEventListener('click', async () => {
 					const label = button.querySelector('[data-copy-label]') ?? button;

@@ -1,5 +1,6 @@
-// The site's pages, with the titles and descriptions their layout and share
-// cards use.
+// The site's pages. Signal (the main design) lives at the root; Scope, the
+// hidden alternate design behind the footer's A/B switch, is a single page at
+// /scope.
 
 export const pages = [
   {
@@ -40,3 +41,4 @@ export const pageMeta = (page: Page) =>
   pages.find((p) => p.id === page) ?? pages[0];
 
 export const signalHref = (page: Page) => pageMeta(page).path || "/";
+export const scopeHref = "/scope";

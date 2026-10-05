@@ -1,0 +1,74 @@
+---
+// Scope: the hidden alternate version of the site, reached through the A/B
+// switch in Signal's footer. It's a single page, a radio off the internet
+// (src/pages/scope/index.astro), plus "dead air" for anything else under
+// /scope. Always dark, full screen, and never called "Scope" where visitors
+// can see it.
+import Analytics from '@vercel/analytics/astro';
+import { pageMeta } from '../lib/routes';
+import '../styles/global.css';
+
+interface Props {
+	title: string;
+	/** Unknown paths are kept out of search results instead of pointing at the home page. */
+	missing?: boolean;
+}
+
+const { title, missing = false } = Astro.props;
+
+// Share cards and the description match Signal's home page, which search
+// engines are pointed at instead.
+const meta = pageMeta('home');
+const canonical = new URL('/', Astro.site);
+const ogImageURL = new URL(`/api/og.png?title=${encodeURIComponent(meta.title)}`, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang='en' class='dark scope'>
+	<head>
+		<meta charset='UTF-8' />
+		<meta name='viewport' content='width=device-width, initial-scale=1' />
+		<meta name='theme-color' content='#050908' />
+		{missing ? <meta name='robots' content='noindex' /> : <link rel='canonical' href={canonical} />}
+		<link rel='apple-touch-icon' sizes='180x180' href='/apple-touch-icon.png' />
+		<link rel='icon' type='image/png' sizes='32x32' href='/favicon-32x32.png' />
+		<link rel='icon' type='image/png' sizes='16x16' href='/favicon-16x16.png' />
+		<title>{title}</title>
+		<meta name='description' content={meta.description} />
+		<meta property='og:title' content={meta.title} />
+		<meta property='og:description' content={meta.description} />
+		<meta property='og:image' content={ogImageURL} />
+		<meta property='og:url' content={canonical} />
+		<meta property='og:type' content='website' />
+		<meta name='twitter:card' content='summary_large_image' />
+		<meta name='twitter:title' content={meta.title} />
+		<meta name='twitter:description' content={meta.description} />
+		<meta name='twitter:image' content={ogImageURL} />
+		<link rel='preconnect' href='https://fonts.googleapis.com' />
+		<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin />
+		<link href='https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap' rel='stylesheet' />
+	</head>
+	<body class='bg-background font-mono text-[13px] text-foreground'>
+		<slot />
+		<Analytics />
+	</body>
+</html>
+
+<style is:global>
+	html.scope {
+		--background: oklch(0.165 0.006 205);
+		--foreground: oklch(0.93 0.012 180);
+		--muted: oklch(0.235 0.01 205);
+		--muted-foreground: oklch(0.7 0.014 190);
+		--border: oklch(0.31 0.014 200);
+		--primary: oklch(0.8 0.14 173.8);
+		color-scheme: dark;
+		/* One screen, no scrolling, so no gutter. */
+		scrollbar-gutter: auto;
+		overflow: hidden;
+	}
+	html.scope ::selection {
+		background: color-mix(in oklch, var(--primary) 30%, transparent);
+		color: var(--foreground);
+	}
+</style>

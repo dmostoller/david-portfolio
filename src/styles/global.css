@@ -228,9 +228,10 @@
   isolation: auto;
 }
 
-/* Theme changes are their own effect (the circular reveal), so page elements
-   sit those transitions out. */
-html[data-theme-transition] * {
+/* Theme changes (the circular reveal) and crossings to the other design (the
+   static) are their own effect, so page elements sit those transitions out. */
+html[data-theme-transition] *,
+html:has(canvas[data-crossing]) * {
   view-transition-name: none !important;
 }
 
